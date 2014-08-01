@@ -1,0 +1,60 @@
+TARGET=3doh.elf
+DEBUG =
+MAINCPP= .
+CFLAGS = -DDREAMCAST -O3 -Wall -I$(MAINCPP) -I$(KOS_BASE)/include -I$(KOS_BASE)/../kosports/include -I$(KOS_BASE)/../kosports/include/SDL -I./ -I./freedo -I./freedo/filters $(DEBUG) 
+LFLAGS =
+LIBS = 
+
+
+
+all: $(TARGET)
+
+OBJS = freedo/arm.o \
+freedo/DiagPort.o\
+freedo/quarz.o\
+freedo/Clio.o \
+freedo/frame.o \
+freedo/Madam.o \
+freedo/vdlp.o \
+freedo/_3do_sys.o \
+freedo/bitop.o \
+freedo/DSP.o \
+freedo/Iso.o \
+freedo/SPORT.o \
+freedo/XBUS.o \
+freedo/filters/hq2x.o \
+freedo/filters/hq3x.o \
+freedo/filters/hq4x.o \
+freedo/filters/hqx_init.o \
+video/dc/video.o \
+sound/dc/sound.o \
+fs/dc/sdcard.o \
+input/dc/input.o \
+config.o \
+main.o
+	
+
+include $(KOS_BASE)/Makefile.rules
+
+clean:
+	-rm -f $(TARGET) $(OBJS)
+
+rm-elf:
+	-rm -f $(TARGET) $(OBJS)
+
+$(TARGET): $(OBJS) romdisk.o
+	$(KOS_CCPLUS) $(KOS_CFLAGS) $(KOS_LDFLAGS) $(CFLAGS) -o $(TARGET) $(KOS_START) \
+		$(OBJS) romdisk.o -lfatfs -lparallax -lk++ $(KOS_LIBS)
+
+romdisk.img:
+	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v
+
+romdisk.o: romdisk.img
+	$(KOS_BASE)/utils/bin2o/bin2o romdisk.img romdisk romdisk.o
+
+run: $(TARGET)
+	$(KOS_LOADER) $(TARGET)
+
+dist:
+	-rm -f $(OBJS)
+	$(KOS_STRIP) $(TARGET)
