@@ -29,6 +29,7 @@ video/sdl/video.o \
 sound/sdl/sound.o \
 fs/linux/cdrom.o \
 input/sdl/input.o \
+timer/linux/timer.o \
 config.o \
 main.o
 

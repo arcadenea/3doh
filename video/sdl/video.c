@@ -12,7 +12,7 @@ SDL_Surface *image; /*for OPENGL video*/
 VDLFrame *frame;
 extern _ext_Interface  fd_interface;
 
-int initVideo(int w,int h, int bpp)
+int videoInit(int w,int h, int bpp)
 {
 
 	frame=(VDLFrame *)malloc(sizeof(VDLFrame));
@@ -54,10 +54,15 @@ int rw,rh;
 		fd_interface(FDP_DO_EXECFRAME,frame);
 
     	if(SDL_MUSTLOCK(screen))SDL_LockSurface( screen );
-		Get_Frame_Bitmap((VDLFrame *)frame,screen->pixels,screen->w,&bmpcrop,320,240,0,1,0,sca,&rw,&rh);
+//		Get_Frame_Bitmap((VDLFrame *)frame,screen->pixels,screen->w,&bmpcrop,320,240,0,1,0,sca,&rw,&rh);
+		Get_Frame_Bitmap((VDLFrame *)frame,image->pixels,image->w,320,240,0,0,0);
 		if(SDL_MUSTLOCK(screen))SDL_UnlockSurface( screen );
 
 		SDL_Flip(screen);
 
 }
 
+int videoClose()
+{
+
+}
