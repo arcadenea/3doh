@@ -20,7 +20,7 @@ int fullscreen=0;
 
 
 
-int inputMapButton(char *button)
+int inputMapButton(char const *button)
 {
 
 	printf("%s\n",button);

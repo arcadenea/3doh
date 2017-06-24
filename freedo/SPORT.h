@@ -32,9 +32,9 @@ Felix Lazarev
 	void _sport_Init(unsigned char *vmem);
 
 	 //take source for SPORT
-	int __fastcall _sport_SetSource(unsigned int index);
+	int  _sport_SetSource(unsigned int index);
 
-	void __fastcall _sport_WriteAccess(unsigned int index, unsigned int mask);
+	void  _sport_WriteAccess(unsigned int index, unsigned int mask);
 
 unsigned int _sport_SaveSize();
 void _sport_Save(void *buff);

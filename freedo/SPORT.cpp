@@ -70,14 +70,14 @@ void _sport_Init(unsigned char *vmem)
        	VRAM=vmem;
 }
 
-int __fastcall _sport_SetSource(unsigned int index) //take source for SPORT
+int  _sport_SetSource(unsigned int index) //take source for SPORT
 {
 	gSPORTSOURCE=(index<<7);
 	return 0;
 }
 
 
-void __fastcall _sport_WriteAccess(unsigned int index, unsigned int mask)
+void  _sport_WriteAccess(unsigned int index, unsigned int mask)
 {
  int i;
  unsigned int tmp,ctmp;

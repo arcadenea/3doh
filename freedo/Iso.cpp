@@ -178,7 +178,7 @@ public:
 	void Init();
 
 	unsigned int GetStatusFifo();
-	void __fastcall SendCommand(unsigned char val);
+	void  SendCommand(unsigned char val);
 	unsigned int GetPoll();
 	bool TestFIQ();
 	void SetPoll(unsigned int val);
@@ -275,7 +275,7 @@ unsigned int cdrom_Device::GetStatusFifo()
 
 }
 
-void __fastcall cdrom_Device::SendCommand(unsigned char val)
+void  cdrom_Device::SendCommand(unsigned char val)
 {
  	if (CmdPtr<7)
 	{
@@ -1347,19 +1347,19 @@ void* _xbplug_MainDevice(int proc, void* data)
 	case XBP_FIQ:
 		return (void*)isodrive.TestFIQ();
 	case XBP_GET_DATA:
-		return (void*)isodrive.GetDataFifo();
+		return (void*)(intptr_t)isodrive.GetDataFifo();
 	case XBP_GET_STATUS:
-		return (void*)isodrive.GetStatusFifo();
+		return (void*)(intptr_t)isodrive.GetStatusFifo();
 	case XBP_SET_POLL:
 		isodrive.SetPoll((intptr_t)data);
 		break;
 	case XBP_GET_POLL:
-		return (void*)isodrive.GetPoll();
+		return (void*)(intptr_t)isodrive.GetPoll();
 	case XBP_DESTROY:
 		break;
 	case XBP_GET_SAVESIZE:
 		tmp=sizeof(cdrom_Device);
-		return (void*)tmp;
+		return (void*)(intptr_t)tmp;
 	case XBP_GET_SAVEDATA:
 		memcpy(data,&isodrive,sizeof(cdrom_Device));
 		break;

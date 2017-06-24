@@ -55,9 +55,9 @@ typedef  long double real80;
  #define NULL 0
 #endif
 
-#ifdef __GNUC__
- #define __fastcall __attribute__((__fastcall__))
-#endif
+/*#ifdef __GNUC__
+ #define  __attribute__((__))
+#endif*/
 //------------------Vector types-------------------------------------------
 
 #pragma pack(push,1)

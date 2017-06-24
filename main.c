@@ -150,7 +150,7 @@ void * emuinterface(int procedure, void *datum)
 	fsReadBlock(datum,onsector);
 		break;
 	case EXT_GET_DISC_SIZE:
-		return (void *) fsReadDiscSize();
+		return (void *) (intptr_t) fsReadDiscSize();
 		break;
 	case EXT_ON_SECTOR:
 		onsector=*((int*)&datum);
@@ -171,7 +171,7 @@ void * emuinterface(int procedure, void *datum)
 		return (void *)inputRead();
 		break;
 	case EXT_GET_PBUSLEN:
-		return (void *)inputLength();
+		return (void *) (intptr_t) inputLength();
 		break;
 	case EXT_FRAMETRIGGER_MT:
 		break;
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 
 	if((biosset)&&(imageset))
 	{
-		if(!initEmu(800,600,32,12500000)) return 0;
+		if(!initEmu(320,240,16,12500000)) return 0;
 
 
 		/*free resources*/
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 #else
 		sprintf(biosFile,"bios/bios.bin");
 		sprintf(imageFile,"games/game.iso");
-		initEmu(640,480,32,12500000);
+		initEmu(320,240,16,12500000);
 		fd_interface(FDP_DESTROY,(void *)0);
 		soundClose();
 //		SDL_Quit();
@@ -296,8 +296,8 @@ int initEmu(int xres,int yres, int bpp, int armclock)
 
 
 
-	fd_interface(FDP_SET_ARMCLOCK,(void *)arm_clock);
-	fd_interface(FDP_SET_TEXQUALITY,(void *)tex_quality);
+	fd_interface(FDP_SET_ARMCLOCK,(void *)(intptr_t)arm_clock);
+	fd_interface(FDP_SET_TEXQUALITY,(void *)(intptr_t)tex_quality);
 //	io_interface(FDP_INIT,0);
 //	profile=io_interface(FDP_GETP_PROFILE,0);
 
@@ -333,7 +333,7 @@ int initEmu(int xres,int yres, int bpp, int armclock)
 		if((frame_end-time_start)>=1000) 
 		{
 
-			printf("framerate:%d fps samples:%d\n",frames,count_samples);
+			//printf("framerate:%d fps samples:%d\n",frames,count_samples);
 			frames=0;
 			count_samples=0;
 			time_start = timerGettime();

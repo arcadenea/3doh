@@ -75,7 +75,7 @@ void _xbus_SetCommandFIFO(unsigned int val)
 
 	if(xdev[XBSEL])
 	{
-			(*xdev[XBSEL])(XBP_SET_COMMAND,(void*)val);
+			(*xdev[XBSEL])(XBP_SET_COMMAND,(void*)(intptr_t)val);
 			if((*xdev[XBSEL])(XBP_FIQ,NULL)) _clio_GenerateFiq(4,0);
 	}
 	else if(XBSEL==0xf)
@@ -188,7 +188,7 @@ return res;
 
 void _xbus_SetDataFIFO(unsigned int val)
 {
-        if(xdev[XBSEL])(*xdev[XBSEL])(XBP_SET_DATA,(void*)val);
+        if(xdev[XBSEL])(*xdev[XBSEL])(XBP_SET_DATA,(void*)(intptr_t)val);
 }
 
 void _xbus_SetPoll(unsigned int val)
@@ -200,7 +200,7 @@ void _xbus_SetPoll(unsigned int val)
 	}
 	if(xdev[XBSEL])
 	{
-			(*xdev[XBSEL])(XBP_SET_POLL,(void*)val);
+			(*xdev[XBSEL])(XBP_SET_POLL,(void*)(intptr_t)val);
 			if((*xdev[XBSEL])(XBP_FIQ,NULL)) _clio_GenerateFiq(4,0);
 	}
 }

@@ -135,7 +135,7 @@ void _3do_InternalFrame(int cicles)
 
                 if(_qrz_QueueDSP())
                 {
-                        io_interface(EXT_PUSH_SAMPLE,(void*)_dsp_Loop());
+                        io_interface(EXT_PUSH_SAMPLE,(void*)(intptr_t)_dsp_Loop());
                 }
 
 
@@ -176,7 +176,7 @@ void _3do_InternalFrame(int cicles)
 
 }
 
-void __fastcall _3do_Frame(VDLFrame *frame, bool __scipframe=false)
+void  _3do_Frame(VDLFrame *frame, bool __scipframe=false)
 {
 int i,cnt=0;
 
@@ -275,7 +275,7 @@ extern int ARM_CLOCK;
 
 void _3do_OnSector(unsigned int sector)
 {
-        io_interface(EXT_ON_SECTOR,(void*)sector);
+        io_interface(EXT_ON_SECTOR,(void*)(intptr_t)sector);
 }
 
 void _3do_Read2048(void *buff)
@@ -296,7 +296,7 @@ int line;
         {
          case FDP_INIT:
                 io_interface=(_ext_Interface)datum;
-                return (void*)_3do_Init();
+                return (void*)(intptr_t)_3do_Init();
          case FDP_DESTROY:
                 _3do_Destroy();
                 break;
@@ -311,7 +311,7 @@ int line;
                 while(line<256)_vdl_DoLineNew(line++,(VDLFrame*)datum);
                 break;
          case FDP_GET_SAVE_SIZE:
-                return (void*)_3do_SaveSize();
+                return (void*)(intptr_t)_3do_SaveSize();
          case FDP_DO_SAVE:
                 _3do_Save(datum);
                 break;

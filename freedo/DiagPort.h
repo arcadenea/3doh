@@ -30,8 +30,8 @@ Felix Lazarev
 
 	void _diag_Init(int testcode);
 
-	unsigned int __fastcall _diag_Get();
-	void __fastcall _diag_Send(unsigned int val);
+	unsigned int  _diag_Get();
+	void  _diag_Send(unsigned int val);
 
 
 #endif 

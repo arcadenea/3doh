@@ -27,7 +27,7 @@
 	int readcount;
 
 
-void configOpen(char *file)
+void configOpen(char const *file)
 {
 
 
@@ -121,7 +121,7 @@ int configReadInt(char *section,char *name)
 }
 
 
-char *configReadString(char *section,char *name)
+char *configReadString(char *section,char const *name)
 {
 
 	char *value;
@@ -146,8 +146,8 @@ char *configReadString(char *section,char *name)
 		fgets(temp,20,config);
 		sprintf(stemp,"[%s]",section);
 
-		printf("found: %s\n",temp);
-		printf("match: %s\n",stemp);
+//		printf("found: %s\n",temp);
+//		printf("match: %s\n",stemp);
 		
 
 		//if section found
@@ -192,7 +192,7 @@ char *configReadString(char *section,char *name)
 
 	}
 	rewind (config);
-	return "JOY_BUTTON0";
+	return value;
 
 }
 

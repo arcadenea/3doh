@@ -17,7 +17,7 @@
 */
 
 
-void configOpen(char *file);
+void configOpen(char const *file);
 void configClose();
-int configReadInt(char *section,char *name);
-char *configReadString(char *section,char *name);
+int configReadInt(char *section,char const *name);
+char *configReadString(char *section,char const *name);

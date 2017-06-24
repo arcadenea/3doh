@@ -93,27 +93,27 @@ void Get_Frame_Bitmap(
 //				bPart = (char)(linePtr->xBACKGROUND & 0x1F);
 //				gPart = (char)((linePtr->xBACKGROUND >> 5) & 0x1F);
 //				rPart = (char)((linePtr->xBACKGROUND >> 10) & 0x1F);
-				*destPtr++ = (char)(linePtr->xBACKGROUND & 0x1F);
-				*destPtr++ = (char)((linePtr->xBACKGROUND >> 5) & 0x1F);
 				*destPtr++ = (char)((linePtr->xBACKGROUND >> 10) & 0x1F);
+				*destPtr++ = (char)((linePtr->xBACKGROUND >> 5) & 0x1F);
+				*destPtr++ = (char)((linePtr->xBACKGROUND) & 0x1F);
 			}
 			else if (allowFixedClut && (*srcPtr & 0x8000) > 0)
 			{
 //				bPart = FIXED_CLUTB[(*srcPtr) & 0x1F];
 //				gPart = FIXED_CLUTG[((*srcPtr) >> 5) & 0x1F];
 //				rPart = FIXED_CLUTR[(*srcPtr) >> 10 & 0x1F];
-				*destPtr++ = FIXED_CLUTB[(*srcPtr) & 0x1F];
-				*destPtr++ = FIXED_CLUTG[((*srcPtr) >> 5) & 0x1F];
-				*destPtr++ = FIXED_CLUTR[(*srcPtr) >> 10 & 0x1F];
+				*destPtr++ = (char)FIXED_CLUTR[((*srcPtr) >> 10) & 0x1F];
+				*destPtr++ = (char)FIXED_CLUTG[((*srcPtr) >> 5) & 0x1F];
+				*destPtr++ = (char)FIXED_CLUTB[((*srcPtr)) & 0x1F];
 			}
 			else
 			{
 //				bPart = (char)(linePtr->xCLUTB[(*srcPtr) & 0x1F]);
 //				gPart = linePtr->xCLUTG[((*srcPtr) >> 5) & 0x1F];
 //				rPart = linePtr->xCLUTR[(*srcPtr) >> 10 & 0x1F];
-				*destPtr++ = (char)(linePtr->xCLUTB[(*srcPtr) & 0x1F]);
-				*destPtr++ = linePtr->xCLUTG[((*srcPtr) >> 5) & 0x1F];
-				*destPtr++ = linePtr->xCLUTR[(*srcPtr) >> 10 & 0x1F];
+				*destPtr++ = (char)(linePtr->xCLUTR[((*srcPtr) >> 10) & 0x1F]);
+				*destPtr++ = (char)linePtr->xCLUTG[((*srcPtr) >> 5) & 0x1F];
+				*destPtr++ = (char)linePtr->xCLUTB[((*srcPtr)) & 0x1F];
 			}
 //			*destPtr++ = bPart;
 //			*destPtr++ = gPart;
@@ -121,7 +121,7 @@ void Get_Frame_Bitmap(
 
 //			printf("R:%d G:%d B:%d\n",rPart,gPart,bPart);
 
-			destPtr += copyPointlessAlphaByte;
+			*destPtr++= copyPointlessAlphaByte;
 			srcPtr++;
 
 /*			if (line < bitmapCrop->top)

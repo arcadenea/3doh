@@ -157,12 +157,12 @@ struct ARM_CoreState
 ARM_CoreState arm;
 static int CYCLES;	//cycle counter
 
-unsigned int  rreadusr(unsigned int rn);
-void  loadusr(unsigned int rn, unsigned int val);
-unsigned int  mreadb(unsigned int addr);
-void  mwriteb(unsigned int addr, unsigned int val);
-unsigned int  mreadw(unsigned int addr);
-void  mwritew(unsigned int addr,unsigned int val);
+unsigned int __fastcall rreadusr(unsigned int rn);
+void __fastcall loadusr(unsigned int rn, unsigned int val);
+unsigned int __fastcall mreadb(unsigned int addr);
+void __fastcall mwriteb(unsigned int addr, unsigned int val);
+unsigned int __fastcall mreadw(unsigned int addr);
+void __fastcall mwritew(unsigned int addr,unsigned int val);
 
 #define MAS_Access_Exept	arm.MAS_Access_Exept
 #define pRam	arm.Ram
@@ -256,9 +256,6 @@ void ARM_RestUserRONS()
              memcpy(RON_FIQ,&RON_USER[8],7<<2);
              memcpy(&RON_USER[8],RON_CASH,7<<2);
              break;
-
-
-
      case ARM_MODE_IRQ:
 			 RON_IRQ[0]=RON_USER[13];
 			 RON_IRQ[1]=RON_USER[14];
@@ -479,7 +476,7 @@ void ARM_RestUndRONS()
    }
 }
 
-void  ARM_Change_ModeSafe(uint32 mode)
+void __fastcall ARM_Change_ModeSafe(uint32 mode)
 {
     switch(arm_mode_table[mode&0x1f])
     {
@@ -504,7 +501,7 @@ void  ARM_Change_ModeSafe(uint32 mode)
     }
 }
 
-void  SelectROM(int n)
+void __fastcall SelectROM(int n)
 {
     gSecondROM = (n>0)? true:false;
 }
@@ -669,7 +666,7 @@ void _arm_Reset()
 }
 
 
-void  ldm_accur(unsigned int opc, unsigned int base, unsigned int rn_ind)
+void __fastcall ldm_accur(unsigned int opc, unsigned int base, unsigned int rn_ind)
 {
  unsigned short x=opc&0xffff;
  unsigned short list=opc&0xffff;
@@ -752,7 +749,7 @@ void  ldm_accur(unsigned int opc, unsigned int base, unsigned int rn_ind)
 }
 
 
-void  stm_accur(unsigned int opc, unsigned int base, unsigned int rn_ind)
+void __fastcall stm_accur(unsigned int opc, unsigned int base, unsigned int rn_ind)
 {
  unsigned short x=opc&0xffff;
  unsigned short list=opc&0x7fff;
@@ -862,7 +859,7 @@ typedef struct TagArg
 				unsigned int Type;
 				unsigned int Arg;
 			} TagItem;
-void  decode_swi(unsigned int i)
+void __fastcall decode_swi(unsigned int i)
 {
 
     (void) i;
@@ -920,7 +917,7 @@ static inline void ARM_SET_CV_sub(uint32 rd, uint32 op1, uint32 op2)
 }
 
 
-static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
+static inline bool __fastcall ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
 {
  switch(opc)
  {
@@ -1064,7 +1061,7 @@ static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2,
 }
 
 
-uint32  ARM_SHIFT_NSC(uint32 value, uint8 shift, uint8 type)
+uint32 __fastcall ARM_SHIFT_NSC(uint32 value, uint8 shift, uint8 type)
 {
   switch(type)
   {
@@ -1122,7 +1119,7 @@ uint32  ARM_SHIFT_NSC(uint32 value, uint8 shift, uint8 type)
   return 0;
 }
 
-uint32  ARM_SHIFT_SC(uint32 value, uint8 shift, uint8 type)
+uint32 __fastcall ARM_SHIFT_SC(uint32 value, uint8 shift, uint8 type)
 {
 uint32 tmp;
   switch(type)
@@ -1180,7 +1177,7 @@ uint32 tmp;
 
 
 
-void  ARM_SWAP(uint32 cmd)
+void __fastcall ARM_SWAP(uint32 cmd)
 {
 
     unsigned int tmp, addr;
@@ -1236,7 +1233,7 @@ const bool is_logic[]={
     true,true,true,true
     };
 
-inline void arm60_BRANCH(uint32 cmd)
+void arm60_BRANCH(uint32 cmd)
 {
 
 					if(cmd&(1<<24))
@@ -1251,18 +1248,7 @@ inline void arm60_BRANCH(uint32 cmd)
 
 }
 
-void arm60_MULT_ACC(unsigned int cmd)
-{
-unsigned int res;
-
-	REG_PC+=8;
-    res=RON_USER[(cmd>>12)&0xf];
-    REG_PC-=8;
-
-}
-
-
-inline void arm60_MULT(unsigned int cmd)
+void arm60_MULT(unsigned int cmd)
 {
 
 					unsigned int res;
@@ -1271,25 +1257,49 @@ inline void arm60_MULT(unsigned int cmd)
 						res=((calcbits(RON_USER[(cmd>>8)&0xf])+5)>>1)-1;
 						if(res>16)CYCLES-=16;
 						else CYCLES-=res;
-						
-						res=RON_USER[cmd&0xf]*RON_USER[(cmd>>8)&0xf];
 
-						/*multiply and accumulate*/
-						if (cmd&(1<<21))
-                        {
-                            	res+=RON_USER[(cmd>>12)&0xf];
-                        }
-						
+						if(((cmd>>16)&0xf)==(cmd&0xf))
+						{
+							if (cmd&(1<<21))
+//							switch(cmd)
+                            {
+//							case 0x10000:
+                            	REG_PC+=8;
+                            	res=RON_USER[(cmd>>12)&0xf];
+                                REG_PC-=8;
+//								break;
+                            }
+                            else
+							{
+//							default:
+                                res=0;
+//								break;
+							}
+						}
+						else
+						{
+							if (cmd&(1<<21))
+//							switch
+                            {
+                            	res=RON_USER[cmd&0xf]*RON_USER[(cmd>>8)&0xf];
+                                REG_PC+=8;
+                                res+=RON_USER[(cmd>>12)&0xf];
+                                REG_PC-=8;
+                            }
+                            else
+                                res=RON_USER[cmd&0xf]*RON_USER[(cmd>>8)&0xf];
+						}
 						if(cmd&(1<<20))
 						{
 							ARM_SET_ZN(res);
 						}
 
 						RON_USER[(cmd>>16)&0xf]=res;
+					
 
 }
 
-inline void arm60_SDT(uint32 cmd)
+void arm60_SDT(uint32 cmd)
 {
 
 					uint8 shift,shtype;
@@ -1419,7 +1429,7 @@ inline void arm60_SDT(uint32 cmd)
 
 }
 
-inline void arm60_COPRO(uint32 cmd)
+void arm60_COPRO(uint32 cmd)
 {
 
 					SPSR[arm_mode_table[0x1b]]=CPSR;
@@ -1483,7 +1493,7 @@ void arm60_ALU(uint32 cmd)
 
                               if((cmd&(1<<20)) && is_logic[((cmd>>21)&0xf)] ) ARM_SET_C(carry_out);
 
-//static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
+//static inline bool __fastcall ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
 //							  if(ARM_ALU_Exec(cmd, (cmd>>20)&0x1f ,op1,op2,&RON_USER[(cmd>>12)&0xf]))
 //							  {
 
@@ -1638,7 +1648,7 @@ void arm60_ALU(uint32 cmd)
 
 
 
-int  _arm_Execute()
+int __fastcall _arm_Execute()
 {
     uint32 cmd,pc_tmp,cmd_tmp;
 
@@ -1659,44 +1669,39 @@ int  _arm_Execute()
 
 		if(((cond_flags_cross[(((uint32)cmd)>>28)]>>((CPSR)>>28))&1))
 		{
-			switch((cmd)&0x0fc00090) 
+
+			if ((cmd & 0x0fc000f0) == 0x00000090)    /* Multiplication */
 			{
-				case 0x00000090:
 					arm60_MULT(cmd);
-					if ((cmd & 0x0fc000f0) != 0x00000090) printf("not mult! %#010x\n", cmd); 
-					break;
-
-		//		case 0x00000000:
-		//		if (!(cmd & 0x0c000000)) printf("not data processing! %#010x\n", cmd); 
-		//		break;
-
-			
-			}
-
-//			if ((cmd & 0x0fc000f0) == 0x00000090)    /* Multiplication */
-//			{
-//					arm60_MULT(cmd);
 //					printf("%x\n",cmd);
-//			}
-			if (!(cmd & 0x0c000000)) /* Data processing */
+			}
+			else if (!(cmd & 0x0c000000)) /* Data processing */
 			{
-
+//				HandleALU(cpustate, insn);
+//				arm60_ALU(cmd);
+//				printf("%x\n",cmd);
 			}
 			else if ((cmd & 0x0c000000) == 0x04000000) /* Single data access */
 			{
 				arm60_SDT(cmd);
+//				HandleMemSingle(cpustate, insn);
+//				R15 += 4;
 			}
 			else if ((cmd & 0x0e000000) == 0x08000000 ) /* Block data access */
 			{
+//				HandleMemBlock(cpustate, insn);
+//				R15 += 4;
 				bdt_core(cmd);
 			}
 			else if ((cmd & 0x0e000000) == 0x0a000000)   /* Branch */
 			{
+//				HandleBranch(cpustate, insn);
 				arm60_BRANCH(cmd);
 			}
 			else if ((cmd & 0x0f000000) == 0x0e000000)   /* Coprocessor */
 			{
-
+	//			HandleCoPro(cpustate, insn);
+//				R15 += 4;
 				arm60_COPRO(cmd);
 			}
 			else if ((cmd & 0x0f000000) == 0x0f000000)   /* Software interrupt */
@@ -1713,8 +1718,6 @@ int  _arm_Execute()
 					CYCLES-=SCYCLE+NCYCLE; // +2S+1N
 //					break;
 			}
-
-			
 
 /*************************************************************************************************/
 			switch((cmd>>24)&0xf) 
@@ -1772,7 +1775,7 @@ int  _arm_Execute()
 }
 
 
-void _mem_write8(unsigned int addr, unsigned char val)
+void __fastcall _mem_write8(unsigned int addr, unsigned char val)
 {
 	    pRam[addr]=val;
 //		return;
@@ -1781,7 +1784,7 @@ void _mem_write8(unsigned int addr, unsigned char val)
 //        pRam[addr+2*1024*1024]=val;  //3doh fix
 //        pRam[addr+3*1024*1024]=val;  //3doh fix
 }
-void _mem_write16(unsigned int addr, unsigned short val)
+void __fastcall _mem_write16(unsigned int addr, unsigned short val)
 {
         *((unsigned short*)&pRam[addr])=val;
 //		return;
@@ -1790,7 +1793,7 @@ void _mem_write16(unsigned int addr, unsigned short val)
 //        *((unsigned short*)&pRam[addr+2*1024*1024])=val;  //3doh fix
 //        *((unsigned short*)&pRam[addr+3*1024*1024])=val;  //3doh fix
 }
-void _mem_write32(unsigned int addr, unsigned int val)
+void __fastcall _mem_write32(unsigned int addr, unsigned int val)
 {
 	    *((unsigned int*)&pRam[addr])=val;
 //		return; //3doh
@@ -1800,11 +1803,11 @@ void _mem_write32(unsigned int addr, unsigned int val)
 //        *((unsigned int*)&pRam[addr+3*1024*1024])=val;  //3doh fix
 }
 
-unsigned short  _mem_read16(unsigned int addr)
+unsigned short __fastcall _mem_read16(unsigned int addr)
 {
         return *((unsigned short*)&pRam[addr]);
 }
-unsigned int  _mem_read32(unsigned int addr)
+unsigned int __fastcall _mem_read32(unsigned int addr)
 {
         return *((unsigned int*)&pRam[addr]);
 }
@@ -1820,7 +1823,7 @@ unsigned char memread8(unsigned int addr)
 }
 
 
-void  mwritew(unsigned int addr, unsigned int val)
+void __fastcall mwritew(unsigned int addr, unsigned int val)
 {
     //to do -- wipe out all HW part
     //to do -- add proper loging
@@ -1893,7 +1896,7 @@ void  mwritew(unsigned int addr, unsigned int val)
 
 }
 
-unsigned int  mreadw(unsigned int addr)
+unsigned int __fastcall mreadw(unsigned int addr)
 {
     //to do -- wipe out all HW
     //to do -- add abort (may be in HW)
@@ -1977,7 +1980,7 @@ unsigned int  mreadw(unsigned int addr)
 }
 
 
-void  mwriteb(unsigned int addr, unsigned int val)
+void __fastcall mwriteb(unsigned int addr, unsigned int val)
 {
   int index; // for avoid bad compiler optimization
 
@@ -2013,7 +2016,7 @@ void  mwriteb(unsigned int addr, unsigned int val)
 
 
 
-unsigned int  mreadb(unsigned int addr)
+unsigned int __fastcall mreadb(unsigned int addr)
 {
 
   int index; // for avoid bad compiler optimization
@@ -2048,7 +2051,7 @@ unsigned int  mreadb(unsigned int addr)
 }
 
 
-void inline loadusr(unsigned int n, unsigned int val)
+void  __fastcall loadusr(unsigned int n, unsigned int val)
 {
  if(n==15)
  {
@@ -2077,7 +2080,7 @@ void inline loadusr(unsigned int n, unsigned int val)
 }
 
 
-unsigned int inline rreadusr(unsigned int n)
+unsigned int __fastcall rreadusr(unsigned int n)
 {
  if(n==15)return RON_USER[15];
  switch(arm_mode_table[(CPSR&0x1f)])
@@ -2100,12 +2103,12 @@ unsigned int inline rreadusr(unsigned int n)
 
 
 
-unsigned int inline ReadIO(unsigned int addr)
+unsigned int __fastcall ReadIO(unsigned int addr)
 {
     return mreadw(addr);
 }
 
-void WriteIO(unsigned int addr, unsigned int val)
+void __fastcall WriteIO(unsigned int addr, unsigned int val)
 {
     mwritew(addr,val);
 }

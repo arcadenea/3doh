@@ -81,7 +81,7 @@ enum ScalingAlgorithm
 	HQ4X = 3
 };
 
-//#define __fastcall 
+//#define  
 
 
 #pragma pack(pop)

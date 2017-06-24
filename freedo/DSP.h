@@ -31,15 +31,15 @@ Felix Lazarev
 
 	unsigned int _dsp_Loop();
 
-	unsigned short __fastcall _dsp_ReadIMem(unsigned short addr);
-	void __fastcall _dsp_WriteIMem(unsigned short addr, unsigned short val);
-	void __fastcall _dsp_WriteMemory(unsigned short addr,unsigned short val);
+	unsigned short  _dsp_ReadIMem(unsigned short addr);
+	void  _dsp_WriteIMem(unsigned short addr, unsigned short val);
+	void  _dsp_WriteMemory(unsigned short addr,unsigned short val);
 
 extern "C"
 {
-	void __fastcall _dsp_SetRunning(int val);
+	void  _dsp_SetRunning(int val);
 };
-	void __fastcall _dsp_ARMwrite2sema4(unsigned int val);
+	void  _dsp_ARMwrite2sema4(unsigned int val);
 	unsigned int _dsp_ARMread2sema4(void);
 
 	void _dsp_Init();

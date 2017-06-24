@@ -30,23 +30,23 @@ Felix Lazarev
 
 
 
-	int __fastcall _arm_Execute();
+	int  _arm_Execute();
 	void _arm_Reset();
 	void _arm_Destroy();
 	unsigned char * _arm_Init();
 
 	//for mas
-	void __fastcall _mem_write8(unsigned int addr, unsigned char val);
-        void __fastcall _mem_write16(unsigned int addr, unsigned short val);
-        void __fastcall _mem_write32(unsigned int addr, unsigned int val);
+	void  _mem_write8(unsigned int addr, unsigned char val);
+        void  _mem_write16(unsigned int addr, unsigned short val);
+        void  _mem_write32(unsigned int addr, unsigned int val);
         static inline unsigned char _mem_read8(unsigned int addr);
         //unsigned char _mem_read8(unsigned int addr);
-        unsigned short __fastcall _mem_read16(unsigned int addr);
-        unsigned int __fastcall _mem_read32(unsigned int addr);
+        unsigned short  _mem_read16(unsigned int addr);
+        unsigned int  _mem_read32(unsigned int addr);
 
-	void __fastcall WriteIO(unsigned int addr, unsigned int val);
-	unsigned int __fastcall ReadIO(unsigned int addr);
-	void __fastcall SelectROM(int n);
+	void  WriteIO(unsigned int addr, unsigned int val);
+	unsigned int  ReadIO(unsigned int addr);
+	void  SelectROM(int n);
 
         unsigned int _arm_SaveSize();
         void _arm_Save(void *buff);
