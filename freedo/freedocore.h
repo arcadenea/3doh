@@ -27,9 +27,8 @@ Felix Lazarev
 //------------------------------------------------------------------------------
 #pragma pack(push,1)
 
-#ifdef DREAMCAST
-#define bool int
-#endif
+
+
 
 typedef struct 
 //VDLP Line - one VDLP line per patent
@@ -65,9 +64,9 @@ typedef struct
 	BitmapCrop* bitmapCrop;
 	int copyWidthPixels;
 	int copyHeightPixels;
-	bool addBlackBorder;
-	bool copyPointlessAlphaByte;
-	bool allowCrop;
+	int addBlackBorder;
+	int copyPointlessAlphaByte;
+	int allowCrop;
 	int scalingAlgorithm;
 	int resultingWidth;
 	int resultingHeight;

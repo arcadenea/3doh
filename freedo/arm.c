@@ -572,13 +572,13 @@ unsigned char * _arm_Init()
 	MAS_Access_Exept=false;
 
 #ifndef DREAMCAST
-        profiling=new uint32[(1024*1024*3)>>2];
+        profiling=(uint32 *) malloc(RAMSIZE);
         memset(profiling,0,RAMSIZE);
 
-		profiling2=new uint32[(1024*1024*3)>>2];
+		profiling2=(uint32 *) malloc(RAMSIZE);
         memset(profiling2,0,RAMSIZE);
 
-		profiling3=new uint32[(1024*1024*3)>>2];
+		profiling3=(uint32 *) malloc(RAMSIZE);
         memset(profiling3,0,RAMSIZE);
 #endif
 
@@ -597,24 +597,15 @@ unsigned char * _arm_Init()
 
 	gSecondROM=0;
 
-#ifdef DREAMCAST
-	pRam=new uint8[RAMSIZE];
-	pRom=new uint8[ROMSIZE*2];
-	pNVRam=new uint8[NVRAMSIZE];
+
+	pRam=(uint8 *) malloc(RAMSIZE);
+	pRom=(uint8 *) malloc(ROMSIZE*2);
+	pNVRam=(uint8 *) malloc(NVRAMSIZE);
 
     memset( pRam, 0, RAMSIZE);
     memset( pRom, 0, ROMSIZE);
     memset( pNVRam,0, NVRAMSIZE);
-#else
-	pRam=new uint8[RAMSIZE];  /*3doh fix - wrong ramsize???? */
-	pRom=new uint8[ROMSIZE*2];
-	pNVRam=new uint8[NVRAMSIZE];
 
-    memset( pRam, 0, RAMSIZE); /*3doh fix - wrong ramsize???? */
-    memset( pRom, 0, ROMSIZE*2);
-    memset( pNVRam,0, NVRAMSIZE);
-
-#endif
     gFIQ=false;
 
 	io_interface(EXT_READ_NVRAM,pNVRam);//_3do_LoadNVRAM(pNVRam);
@@ -632,12 +623,12 @@ void _arm_Destroy()
 {
 	io_interface(EXT_WRITE_NVRAM,pNVRam);//_3do_SaveNVRAM(pNVRam);
 
-        delete []profiling;
-		delete []profiling2;
-		delete []profiling3;
-	delete []pNVRam;
-	delete []pRom;
-	delete []pRam;
+    free(profiling);
+	free(profiling2);
+	free(profiling3);
+	free(pNVRam);
+	free(pRom);
+	free(pRam);
 }
 
 void _arm_Reset()

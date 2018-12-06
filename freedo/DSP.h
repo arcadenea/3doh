@@ -35,10 +35,9 @@ Felix Lazarev
 	void  _dsp_WriteIMem(unsigned short addr, unsigned short val);
 	void  _dsp_WriteMemory(unsigned short addr,unsigned short val);
 
-extern "C"
-{
+
 	void  _dsp_SetRunning(int val);
-};
+
 	void  _dsp_ARMwrite2sema4(unsigned int val);
 	unsigned int _dsp_ARMread2sema4(void);
 

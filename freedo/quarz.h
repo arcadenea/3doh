@@ -30,9 +30,9 @@ int  _qrz_VDCurrLine();
 int  _qrz_VDHalfFrame();
 int  _qrz_VDCurrOverline();
 
-bool  _qrz_QueueVDL();
-bool  _qrz_QueueDSP();
-bool  _qrz_QueueTimer();
+int  _qrz_QueueVDL();
+int  _qrz_QueueDSP();
+int  _qrz_QueueTimer();
 
 void  _qrz_PushARMCycles(unsigned int clks);
 

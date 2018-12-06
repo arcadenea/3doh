@@ -56,10 +56,9 @@ __inline uint32 _bswap(uint32 x)
 
 extern void* _xbplug_MainDevice(int proc, void* data);
 
-#ifdef DREAMCAST
-extern "C"
-{
-#endif
+
+
+
 int _3do_Init()
 {
  unsigned char *Memory;
@@ -113,9 +112,8 @@ FF	TEST END (halt)
 
         return 0;
 }
-#ifdef DREAMCAST
-};
-#endif
+
+
 
 VDLFrame *curr_frame;
 bool scipframe;

@@ -35,7 +35,7 @@ Felix Lazarev
 
 
 
-extern bool __temporalfixes;
+extern int __temporalfixes;
 extern int HightResMode;
 #define RESSCALE        0
 //#define RESSCALE        HightResMode

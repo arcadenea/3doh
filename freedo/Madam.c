@@ -287,7 +287,7 @@ union	PXC
 
 //*******************************************
 #pragma pack(push,1)
-struct MADAMDatum
+typedef struct sMADAMDatum
 {
  unsigned int mregs[2048+64];
  unsigned short PLUT[32];
@@ -295,9 +295,9 @@ struct MADAMDatum
  int RMOD;
  int WMOD;
  unsigned int _madam_FSM;
-};
+} MADAMDatum;
 #pragma pack(pop)
-static MADAMDatum madam;
+MADAMDatum madam;
 
 unsigned int Get_madam_FSM(){return madam._madam_FSM;};
 void Set_madam_FSM(unsigned int val){madam._madam_FSM=val;};
@@ -398,7 +398,7 @@ unsigned int MAPPING;
 	unsigned int pixelBitsMask;
 	unsigned int pmodeORmask;
 	unsigned int pmodeANDmask;
-	bool tmask;
+	int tmask;
  } pdec;
 
  unsigned int pbus=0;
@@ -413,7 +413,7 @@ unsigned int MAPPING;
  int SPRWI,SPRHI;
 	unsigned int PLUTF,PDATF,NCCBF;
  int CELCYCLES,__smallcicles;
- bool ADD;
+ int ADD;
  //static SDL_Event cpuevent;
  int BITCALC;
 
@@ -452,7 +452,7 @@ unsigned int MAPPING;
 
  unsigned int pSource;
 
-bool Transparent;
+int Transparent;
 
 //AString str;
 
@@ -2162,18 +2162,18 @@ unsigned int TexelCCWTest(double hdx, double hdy, double vdx, double vdy)
         if(((hdx+vdx)*(hdy-vdy)+vdx*vdy-hdx*hdy)<0.0)return CCB_ACCW;
         return CCB_ACW;
 }
-bool QuardCCWTest(int wdt)
+int QuardCCWTest(int wdt)
 {
  unsigned int tmp;
-        if(((CCBFLAGS&CCB_ACCW)) && ((CCBFLAGS&CCB_ACW)))return false;
+        if(((CCBFLAGS&CCB_ACCW)) && ((CCBFLAGS&CCB_ACW)))return 0;
 
         tmp=TexelCCWTest(HDX,HDY,VDX,VDY);
-        if(tmp!=TexelCCWTest(HDX,HDY,VDX+(HDDX)*(float)wdt,VDY+(HDDY)*(float)wdt))return false;
-        if(tmp!=TexelCCWTest(HDX+(HDDX)*SPRHI,HDY+(HDDY)*SPRHI,VDX,VDY))return false;
-        if(tmp!=TexelCCWTest(HDX+(HDDX)*SPRHI,HDY+(HDDY)*SPRHI,VDX+(HDDX)*(float)SPRHI*(float)wdt,VDY+(HDDY)*(float)SPRHI*(float)wdt))return false;
+        if(tmp!=TexelCCWTest(HDX,HDY,VDX+(HDDX)*(float)wdt,VDY+(HDDY)*(float)wdt))return 0;
+        if(tmp!=TexelCCWTest(HDX+(HDDX)*SPRHI,HDY+(HDDY)*SPRHI,VDX,VDY))return 0;
+        if(tmp!=TexelCCWTest(HDX+(HDDX)*SPRHI,HDY+(HDDY)*SPRHI,VDX+(HDDX)*(float)SPRHI*(float)wdt,VDY+(HDDY)*(float)SPRHI*(float)wdt))return 0;
         if(tmp==(CCBFLAGS&(CCB_ACCW|CCB_ACW)))
-                return true;
-        return false;
+                return 1;
+        return 0;
 }
 
 __inline int __abs(int val)

@@ -42,7 +42,7 @@ int onsector=0;
 char biosFile[100];
 char imageFile[100];
 
-bool __temporalfixes;
+int __temporalfixes;
 int HightResMode;
 int __tex__scaler;
 

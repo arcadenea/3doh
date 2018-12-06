@@ -26,8 +26,7 @@ void _frame_Init()
 	}
 }
 
-extern "C"
-{
+
 /*void Get_Frame_Bitmap(
 	VDLFrame* sourceFrame,
 	void* destinationBitmap,
@@ -82,7 +81,7 @@ void Get_Frame_Bitmap(
 //		VDLLine* linePtr = &framePtr->lines[line];
 		VDLLine* linePtr = &sourceFrame->lines[line];
 		short* srcPtr = (short*)linePtr;
-		bool allowFixedClut = (linePtr->xOUTCONTROLL & 0x2000000) > 0;
+		int allowFixedClut = (linePtr->xOUTCONTROLL & 0x2000000) > 0;
 		for (int pix = 0; pix < copyWidth; pix++)
 		{
 //			char bPart = 0;
@@ -171,7 +170,7 @@ void Get_Frame_Bitmap(
 	*resultingWidth = copyWidth * cropAdjust;
 	*resultingHeight = copyHeight * cropAdjust;*/
 }
-};
+
 
 void setCurrentAlgorithm(int algorithm)
 {

@@ -42,10 +42,10 @@ struct QDatum
         uint32 qrz_AccVDL;
         uint32 qrz_TCount;
         uint32 VDL_CLOCK, qrz_vdlline, VDL_HS,VDL_FS;
-};
+} quarz;
 //#pragma pack(pop)
 
-static QDatum quarz;
+//QDatum quarz;
 
 #ifndef DREAMCAST
 #include <memory.h>
@@ -54,15 +54,15 @@ static QDatum quarz;
 #endif
 unsigned int _qrz_SaveSize()
 {
-        return sizeof(QDatum);
+        return sizeof(quarz);
 }
 void _qrz_Save(void *buff)
 {
-        memcpy(buff,&quarz,sizeof(QDatum));
+        memcpy(buff,&quarz,sizeof(quarz));
 }
 void _qrz_Load(void *buff)
 {
-        memcpy(&quarz,buff,sizeof(QDatum));
+        memcpy(&quarz,buff,sizeof(quarz));
 }
 
 #define qrz_AccARM quarz.qrz_AccARM
@@ -101,36 +101,36 @@ int  _qrz_VDCurrOverline()
         return qrz_vdlline;
 }
 
-bool  _qrz_QueueVDL()
+int  _qrz_QueueVDL()
 {
         if(qrz_AccVDL>>24)
         {
                 qrz_AccVDL-=0x1000000;
                 qrz_vdlline++;
                 qrz_vdlline%=VDL_FS;
-                return true;
+                return 1;
         }
-        return false;
+        return 0;
 }
-bool  _qrz_QueueDSP()
+int  _qrz_QueueDSP()
 {
         if(qrz_AccDSP>>24)
         {
                 qrz_AccDSP-=0x1000000;
-                return true;
+                return 1;
         }
-        return false;
+        return 0;
 }
 
-bool  _qrz_QueueTimer()
+int  _qrz_QueueTimer()
 {
  //uint32 cnt=_clio_GetTimerDelay();
         if(qrz_TCount>>24)//=cnt)
         {
                 qrz_TCount-=0x1000000;//cnt;
-                return true;
+                return 1;
         }
-        return false;
+        return 0;
 }
 
 void  _qrz_PushARMCycles(unsigned int clks)

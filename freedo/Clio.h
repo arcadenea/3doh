@@ -30,7 +30,7 @@ Felix Lazarev
 
         int _clio_v0line();
         int _clio_v1line();
-        bool  _clio_NeedFIQ();
+        int  _clio_NeedFIQ();
 
 	unsigned int _clio_FIFOStruct(unsigned int addr);
 	void _clio_Reset();

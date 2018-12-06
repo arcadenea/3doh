@@ -63,6 +63,6 @@ int inputEnum();
 int inputInit();
 int inputClose();
 SDL_Joystick *inputOpen(int joyid);
-void inputPoll(SDL_Joystick *joy);
+void inputPoll();
 int inputQuit();
 int inputFullscreen();

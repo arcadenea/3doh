@@ -60,10 +60,10 @@ typedef  long double real80;
 #endif*/
 //------------------Vector types-------------------------------------------
 
-#pragma pack(push,1)
-template <class T> struct point2d { T x,y; };
-template <class T> struct sprite{ point2d<T> ul,dr; };
-#pragma pack(pop)
+//#pragma pack(push,1)
+//template <class T> struct point2d { T x,y; };
+//template <class T> struct sprite{ point2d<T> ul,dr; };
+//#pragma pack(pop)
 //---------------------------------------------------------------------------
 //--------------------resources------------------------------------------------
 #pragma pack(push,1)

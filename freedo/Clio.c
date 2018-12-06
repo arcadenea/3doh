@@ -49,14 +49,15 @@ void  HandleDMA(unsigned int val);
 //////////////////////////////////////////////////////////////////////
 
 #pragma pack(push,1)
-struct FIFOt{
+typedef struct sFIFOt{
 
 	unsigned int StartAdr;
 	int StartLen;
 	unsigned int NextAdr;
 	int NextLen;
-};
-struct CLIODatum
+} FIFOt;
+
+typedef struct sCLIODatum
 {
         unsigned int cregs[65536];
         int DSPW1;
@@ -66,7 +67,7 @@ struct CLIODatum
         int PTRO[4];
         FIFOt FIFOI[13];
         FIFOt FIFOO[4];
-};
+} CLIODatum;
 #pragma pack(pop)
 
 static unsigned int * Mregs;
@@ -117,10 +118,10 @@ int _clio_v1line()
         return cregs[12]&0x7ff;
 }
 
-bool  _clio_NeedFIQ()
+int  _clio_NeedFIQ()
 {
-        if( (cregs[0x40]&cregs[0x48]) || (cregs[0x60]&cregs[0x68]) ) return true;
-        return false;
+        if( (cregs[0x40]&cregs[0x48]) || (cregs[0x60]&cregs[0x68]) ) return 1;
+        return 0;
 }
 
 void  _clio_GenerateFiq(unsigned int reason1, unsigned int reason2)
@@ -578,12 +579,12 @@ void  _clio_DoTimers()
     unsigned int timer;
     unsigned short counter;
     unsigned int flag;
-    bool NeedDecrementNextTimer=true;   // Need decrement for next timer
-    //bool prevdec=false;
+    int NeedDecrementNextTimer=1;   // Need decrement for next timer
+    //int prevdec=0;
         for (timer=0;timer<16;timer++)
         {
             flag=cregs[(timer<8)?0x200:0x208]>>((timer*4)&31);
-            if( !(flag&CASCADE) ) NeedDecrementNextTimer=true;
+            if( !(flag&CASCADE) ) NeedDecrementNextTimer=1;
 
             if( NeedDecrementNextTimer && (flag&DECREMENT) )
             {
@@ -607,8 +608,8 @@ void  _clio_DoTimers()
 				cregs[0x100+timer*8]=counter;
             }
             //else if( !prevdec && (flag&CASCADE) ) return;
-            else NeedDecrementNextTimer=false;
-            //if( !(flag&CASCADE) ) NeedDecrementNextTimer=true;
+            else NeedDecrementNextTimer=0;
+            //if( !(flag&CASCADE) ) NeedDecrementNextTimer=1;
             //prevdec=(flag&DECREMENT);
         }
 }
