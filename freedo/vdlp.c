@@ -63,46 +63,51 @@ extern _ext_Interface  io_interface;
 
 #pragma pack(push,1)
 
-	struct cdmaw
-	{
-		unsigned int	lines:9;//0-8
-		unsigned int	numword:6;//9-14
-		unsigned int	prevover:1;//15
-		unsigned int	currover:1;//16
-		unsigned int	prevtick:1;//17
-		unsigned int  abs:1;//18
-		unsigned int  vmode:1;//19
-		unsigned int  pad0:1;//20
-		unsigned int  enadma:1;//21
-		unsigned int  pad1:1;//22
-		unsigned int  modulo:3;//23-25
-		unsigned int  pad2:6;//26-31
-	};
-	union CDMW
-	{
-		unsigned int raw;
-		cdmaw  dmaw;
-	};
-
-struct VDLDatum
+typedef struct cdmaw
 {
-        unsigned char CLUTB[32];
-        unsigned char CLUTG[32];
-        unsigned char CLUTR[32];
-        unsigned int BACKGROUND;
-        unsigned int HEADVDL;
-        unsigned int MODULO;
-        unsigned int CURRENTVDL;
-        unsigned int CURRENTBMP;
-        unsigned int PREVIOUSBMP;
-        unsigned int OUTCONTROLL;
-        CDMW CLUTDMA;
-        int linedelay;
-};
+	unsigned int	lines:9;//0-8
+	unsigned int	numword:6;//9-14
+	unsigned int	prevover:1;//15
+	unsigned int	currover:1;//16
+	unsigned int	prevtick:1;//17
+	unsigned int  abs:1;//18
+	unsigned int  vmode:1;//19
+	unsigned int  pad0:1;//20
+	unsigned int  enadma:1;//21
+	unsigned int  pad1:1;//22
+	unsigned int  modulo:3;//23-25
+	unsigned int  pad2:6;//26-31
+	}cdmaw;
+
+
+union CDMW
+{
+	unsigned int raw;
+	cdmaw  dmaw;
+}CDMW;
+
+
+typedef struct VDLDatum
+{
+	unsigned char CLUTB[32];
+    unsigned char CLUTG[32];
+    unsigned char CLUTR[32];
+    unsigned int BACKGROUND;
+    unsigned int HEADVDL;
+    unsigned int MODULO;
+    unsigned int CURRENTVDL;
+    unsigned int CURRENTBMP;
+    unsigned int PREVIOUSBMP;
+    unsigned int OUTCONTROLL;
+    union CDMW CLUTDMA;
+    int linedelay;
+}VDLDatum
+
+;
 #pragma pack(pop)
 
-static VDLDatum vdl;
-static unsigned char * vram;
+ VDLDatum vdl;
+ unsigned char * vram;
 
 unsigned int _vdl_SaveSize()
 {
@@ -132,7 +137,7 @@ void _vdl_Load(void *buff)
 
 
 unsigned int vmreadw(unsigned int addr);
-//static AString str;
+// AString str;
 
 void _vdl_ProcessVDL( unsigned int addr)
 {
@@ -145,12 +150,12 @@ void _vdl_ProcessVDL( unsigned int addr)
 
 }
 
-static const unsigned int HOWMAYPIXELEXPECTPERLINE[8] =
+ const unsigned int HOWMAYPIXELEXPECTPERLINE[8] =
 	{320, 384, 512, 640, 1024, 320, 320, 320};
 
 // ###### Per line implementation ######
 
-bool doloadclut=false;
+int doloadclut=0;
 __inline void VDLExec()
 {
  unsigned int NEXTVDL,tmp;
@@ -161,7 +166,7 @@ __inline void VDLExec()
 		if(tmp==0) // End of list
 		{
 			linedelay=511;
-            doloadclut=false;
+            doloadclut=0;
 		}
 		else
 		{
@@ -263,7 +268,7 @@ void _vdl_DoLineNew(int line2x, VDLFrame *frame)
 
 	if(line==0)
 	{
-                doloadclut=true;
+                doloadclut=1;
                 linedelay=0;
 		CURRENTVDL=HEADVDL;
 		VDLExec();
@@ -356,7 +361,7 @@ void _vdl_Init(unsigned char *vramstart)
 {
 	vram=vramstart;
 
-	static const unsigned int StartupVDL[]=
+	 const unsigned int StartupVDL[]=
 	{ // Startup VDL at addres 0x2B0000
 		0x00004410, 0x002C0000, 0x002C0000, 0x002B0098,
 		0x00000000, 0x01080808, 0x02101010, 0x03191919,

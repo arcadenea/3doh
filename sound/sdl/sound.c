@@ -92,7 +92,7 @@ int soundInit()
 	if ( SDL_OpenAudio(&wanted, NULL) < 0 )
 	printf("Couldn't open audio: %s\n", SDL_GetError());
 
-	audio_buffer=(Uint8 *)malloc(buffer_size);
+	audio_buffer=(Uint8 *)malloc(sizeof(Uint8)*buffer_size);
 	memset(audio_buffer,0,buffer_size);
 
 	return 1;

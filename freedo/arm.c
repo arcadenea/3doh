@@ -72,9 +72,9 @@ extern _ext_Interface  io_interface;
 #define ARM_MODE_UND    5
 #define ARM_MODE_UNK    0xff
 
-//static AString str;
+// AString str;
 
-const static uint8 arm_mode_table[]=
+const  uint8 arm_mode_table[]=
 {
      ARM_MODE_UNK,     ARM_MODE_UNK,     ARM_MODE_UNK,     ARM_MODE_UNK,
      ARM_MODE_UNK,     ARM_MODE_UNK,     ARM_MODE_UNK,     ARM_MODE_UNK,
@@ -93,7 +93,7 @@ const static uint8 arm_mode_table[]=
 
 //--------------------------Conditions-------------------------------------------
     //flags - N Z C V  -  31...28
-const static uint16 cond_flags_cross[]={   //((cond_flags_cross[cond_feald]>>flags)&1)  -- пример проверки
+const  uint16 cond_flags_cross[]={   //((cond_flags_cross[cond_feald]>>flags)&1)  -- пример проверки
     0xf0f0, //EQ - Z set (equal)
     0x0f0f, //NE - Z clear (not equal)
     0xcccc, //CS - C set (unsigned higher or same)
@@ -130,7 +130,7 @@ uint32 *profiling3;
 
 
 
-struct ARM_CoreState
+typedef struct ARM_CoreState
 {
 //console memories------------------------
     uint8 *Ram;//[RAMSIZE];
@@ -148,14 +148,14 @@ struct ARM_CoreState
     uint32 SPSR[6];
 	uint32 CPSR;
 
-        bool nFIQ; //external interrupt
-        bool SecondROM;	//ROM selector
-        bool MAS_Access_Exept;	//memory exceptions
-};
+        int nFIQ; //external interrupt
+        int SecondROM;	//ROM selector
+        int MAS_Access_Exept;	//memory exceptions
+}ARM_CoreState;
 #pragma pack(pop)
 
 ARM_CoreState arm;
-static int CYCLES;	//cycle counter
+ int CYCLES;	//cycle counter
 
 unsigned int  rreadusr(unsigned int rn);
 void  loadusr(unsigned int rn, unsigned int val);
@@ -240,7 +240,7 @@ void _arm_Load(void *buff)
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-static inline void load(unsigned int rn, unsigned int val)
+ inline void load(unsigned int rn, unsigned int val)
 {
     RON_USER[rn]=val;
 }
@@ -506,7 +506,7 @@ void  ARM_Change_ModeSafe(uint32 mode)
 
 void  SelectROM(int n)
 {
-    gSecondROM = (n>0)? true:false;
+    gSecondROM = (n>0)? 1:0;
 }
 
 void _arm_SetCPSR(unsigned int a)
@@ -521,7 +521,7 @@ void _arm_SetCPSR(unsigned int a)
 }
 
 
-static inline void SETM(unsigned int a)
+ inline void SETM(unsigned int a)
 {
 	if(arm_mode_table[a&0x1f]==ARM_MODE_UNK)
 	{
@@ -533,12 +533,12 @@ static inline void SETM(unsigned int a)
 }
 
 // This functions d'nt change mode bits, then need no update regcur
-static inline void SETN(bool a) { CPSR=(CPSR&0x7fffffff)|((a?1<<31:0)); }
-static inline void SETZ(bool a) { CPSR=(CPSR&0xbfffffff)|((a?1<<30:0)); }
-static inline void SETC(bool a) { CPSR=(CPSR&0xdfffffff)|((a?1<<29:0)); }
-static inline void SETV(bool a) { CPSR=(CPSR&0xefffffff)|((a?1<<28:0)); }
-static inline void SETI(bool a) { CPSR=(CPSR&0xffffff7f)|((a?1<<7:0)); }
-static inline void SETF(bool a) { CPSR=(CPSR&0xffffffbf)|((a?1<<6:0)); }
+ inline void SETN(int a) { CPSR=(CPSR&0x7fffffff)|((a?1<<31:0)); }
+ inline void SETZ(int a) { CPSR=(CPSR&0xbfffffff)|((a?1<<30:0)); }
+ inline void SETC(int a) { CPSR=(CPSR&0xdfffffff)|((a?1<<29:0)); }
+ inline void SETV(int a) { CPSR=(CPSR&0xefffffff)|((a?1<<28:0)); }
+ inline void SETI(int a) { CPSR=(CPSR&0xffffff7f)|((a?1<<7:0)); }
+ inline void SETF(int a) { CPSR=(CPSR&0xffffffbf)|((a?1<<6:0)); }
 
 
 ///////////////////////////////////////////////////////////////
@@ -554,12 +554,12 @@ static inline void SETF(bool a) { CPSR=(CPSR&0xffffffbf)|((a?1<<6:0)); }
 #define ISF  ((CPSR>>6)&1)
 
 
-static inline uint32 _bswap(uint32 x)
+ inline uint32 _bswap(uint32 x)
 {
 	return (x>>24) | ((x>>8)&0x0000FF00L) | ((x&0x0000FF00L)<<8) | (x<<24);
 }
 
-static inline uint32 _rotr(uint32 val, uint32 shift)
+ inline uint32 _rotr(uint32 val, uint32 shift)
 {
         if(!shift)return val;
         return (val>>shift)|(val<<(32-shift));
@@ -569,7 +569,7 @@ unsigned char * _arm_Init()
 {
     int i;
 
-	MAS_Access_Exept=false;
+	MAS_Access_Exept=0;
 
 #ifndef DREAMCAST
         profiling=(uint32 *) malloc(RAMSIZE);
@@ -606,7 +606,7 @@ unsigned char * _arm_Init()
     memset( pRom, 0, ROMSIZE);
     memset( pNVRam,0, NVRAMSIZE);
 
-    gFIQ=false;
+    gFIQ=0;
 
 	io_interface(EXT_READ_NVRAM,pNVRam);//_3do_LoadNVRAM(pNVRam);
 
@@ -648,11 +648,11 @@ void _arm_Reset()
     for(i=0;i<7;i++)
         RON_CASH[i]=RON_FIQ[i]=0;
 
-	MAS_Access_Exept=false;
+	MAS_Access_Exept=0;
 
     REG_PC=0x03000000;
     _arm_SetCPSR(0x13); //set svc mode
-    gFIQ=false;		//no FIQ!!!
+    gFIQ=0;		//no FIQ!!!
     gSecondROM=0;
 
 	_clio_Reset();
@@ -818,7 +818,7 @@ void  stm_accur(unsigned int opc, unsigned int base, unsigned int rn_ind)
 
 
 
-static void inline bdt_core(unsigned int opc)
+ void inline bdt_core(unsigned int opc)
 {
  unsigned int base,rn_ind;
 
@@ -882,15 +882,18 @@ void ARM_SET_C(uint32 x)
 #define ARM_SET_N(x)    (CPSR=((CPSR&0x7fffffff)|((x)&0x80000000)))
 #define ARM_GET_C       ((CPSR>>29)&1)
 
-static inline void ARM_SET_ZN(uint32 val)
+ inline void ARM_SET_ZN(uint32 valr)
 {
+uint32 val = 0;
+val = valr;
+
         if(val)
                 CPSR=((CPSR&0x3fffffff)|(val&0x80000000));
         else
                 CPSR=((CPSR&0x3fffffff)|0x40000000);
 }
 
-static inline void ARM_SET_CV(uint32 rd, uint32 op1, uint32 op2)
+ inline void ARM_SET_CV(uint32 rd, uint32 op1, uint32 op2)
 {
     //old_C=(CPSR>>29)&1;
 
@@ -900,7 +903,7 @@ static inline void ARM_SET_CV(uint32 rd, uint32 op1, uint32 op2)
 
 }
 
-static inline void ARM_SET_CV_sub(uint32 rd, uint32 op1, uint32 op2)
+ inline void ARM_SET_CV_sub(uint32 rd, uint32 op1, uint32 op2)
 {
     //old_C=(CPSR>>29)&1;
 
@@ -911,7 +914,7 @@ static inline void ARM_SET_CV_sub(uint32 rd, uint32 op1, uint32 op2)
 }
 
 
-static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
+ inline int  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
 {
  switch(opc)
  {
@@ -946,7 +949,7 @@ static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2,
 		else
 			RON_USER[(inst>>12)&0xf]=CPSR;
 
-		return true;
+		return 1;
    case 18:
    case 22:
 		if(!((inst>>16)&0x1) || !(arm_mode_table[MODE]))
@@ -963,7 +966,7 @@ static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2,
 			else
 				_arm_SetCPSR(op2);
 		}
-	    return true;
+	    return 1;
    case 24:
         *Rd=op1|op2;
         break;
@@ -1021,19 +1024,19 @@ static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2,
    case 17:
         op1&=op2;
         ARM_SET_ZN(op1);
-	return true;
+	return 1;
    case 19:
         op1^=op2;
         ARM_SET_ZN(op1);
-        return true;
+        return 1;
    case 21:
         ARM_SET_CV_sub(op1-op2,op1,op2);
         ARM_SET_ZN(op1-op2);
-        return true;
+        return 1;
    case 23:
         ARM_SET_CV(op1+op2,op1,op2);
         ARM_SET_ZN(op1+op2);
-        return true;
+        return 1;
    case 25:
         *Rd=op1|op2;
         ARM_SET_ZN(*Rd);
@@ -1051,7 +1054,7 @@ static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2,
         ARM_SET_ZN(*Rd);
         break;
  };
- return false;
+ return 0;
 }
 
 
@@ -1183,19 +1186,19 @@ void  ARM_SWAP(uint32 cmd)
     if(cmd&(1<<22))
     {
         tmp=mreadb(addr);
-	     //	if(MAS_Access_Exept)return true;
+	     //	if(MAS_Access_Exept)return 1;
         mwriteb(addr, RON_USER[cmd&0xf]);
         REG_PC-=8;
-	     //	if(MAS_Access_Exept)return true;
+	     //	if(MAS_Access_Exept)return 1;
         RON_USER[(cmd>>12)&0xf]=tmp;
     }
     else
     {
         tmp=mreadw(addr);
-        //if(MAS_Access_Exept)return true;
+        //if(MAS_Access_Exept)return 1;
         mwritew(addr, RON_USER[cmd&0xf]);
         REG_PC-=8;
-	  //	if(MAS_Access_Exept)return true;
+	  //	if(MAS_Access_Exept)return 1;
 		if(addr&3)tmp=(tmp>>((addr&3)<<3))|(tmp<<(32-((addr&3)<<3)));
         RON_USER[(cmd>>12)&0xf]=tmp;
     }
@@ -1205,7 +1208,7 @@ void  ARM_SWAP(uint32 cmd)
 
 
 /*3doh fix - check out if it works fine*/
-static inline int calcbits(unsigned int num)
+ inline int calcbits(unsigned int num)
 {
 // unsigned int retval;
 // printf("calcbits %x\n",num);
@@ -1220,11 +1223,11 @@ static inline int calcbits(unsigned int num)
 
 unsigned int curr_pc;
 
-const bool is_logic[]={
-    true,true,false,false,
-    false,false,false,false,
-    true,true,false,false,
-    true,true,true,true
+const int is_logic[]={
+    1,1,0,0,
+    0,0,0,0,
+    1,1,0,0,
+    1,1,1,1
     };
 
 inline void arm60_BRANCH(uint32 cmd)
@@ -1474,7 +1477,7 @@ void arm60_ALU(uint32 cmd)
 
                               if((cmd&(1<<20)) && is_logic[((cmd>>21)&0xf)] ) ARM_SET_C(carry_out);
 
-//static inline bool  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
+// inline int  ARM_ALU_Exec(uint32 inst, uint8 opc, uint32 op1, uint32 op2, uint32 *Rd)
 //							  if(ARM_ALU_Exec(cmd, (cmd>>20)&0x1f ,op1,op2,&RON_USER[(cmd>>12)&0xf]))
 //							  {
 
@@ -1799,7 +1802,7 @@ unsigned int  _mem_read32(unsigned int addr)
 {
         return *((unsigned int*)&pRam[addr]);
 }
-static inline unsigned char _mem_read8(unsigned int addr)
+ inline unsigned char _mem_read8(unsigned int addr)
 {
         return pRam[addr];
 }
@@ -1963,7 +1966,7 @@ unsigned int  mreadw(unsigned int addr)
 
  //   io_interface(EXT_DEBUG_PRINT,(void*)str.print("0x%8.8X:  ReadWord???  0x%8.8X=0x%8.8X\n",REG_PC,addr,0xBADACCE5).CStr());
 
-    //MAS_Access_Exept=true;
+    //MAS_Access_Exept=1;
     return 0xBADACCE5;///data abort
 }
 
@@ -2032,7 +2035,7 @@ unsigned int  mreadb(unsigned int addr)
 		}
     }
 
-	//MAS_Access_Exept=true;
+	//MAS_Access_Exept=1;
 //    io_interface(EXT_DEBUG_PRINT,(void*)str.print("0x%8.8X:  ReadByte???  0x%8.8X=0x%8.8X\n",REG_PC,addr,0xBADACCE5).CStr());
 
     return 0xBADACCE5;///data abort

@@ -3,7 +3,7 @@ CC = gcc
 DEBUG =
 SDL_CFLAGS := $(shell sdl-config --cflags)
 SDL_LDFLAGS := $(shell sdl-config --libs)
-CFLAGS = -std=c99 -O2 -march=native $(SDL_CFLAGS) -I./ -I./freedo -I./freedo/filters
+CFLAGS = -g -O2 -march=native $(SDL_CFLAGS) -I./ -I./freedo -I./freedo/filters
 OCFLAGS = -O3 -march=native -frounding-math -Werror $(SDL_CFLAGS) -I./ -I./freedo -I./freedo/filters -fno-omit-frame-pointer
 LFLAGS = -Wall $(DEBUG)
 LIBS = $(SDL_LDFLAGS) -lm  -lGL -lGLU -L/usr/lib/gcc/i486-linux-gnu/4.7 -L/usr/lib

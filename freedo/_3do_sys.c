@@ -116,7 +116,7 @@ FF	TEST END (halt)
 
 
 VDLFrame *curr_frame;
-bool scipframe;
+int scipframe;
 
 	int time_start=0;
 	int time_end=0;
@@ -174,8 +174,10 @@ void _3do_InternalFrame(int cicles)
 
 }
 
-void  _3do_Frame(VDLFrame *frame, bool __scipframe=false)
+void  _3do_Frame(VDLFrame *frame, int __scipframe)
 {
+
+__scipframe=0;
 int i,cnt=0;
 
         curr_frame=frame;
@@ -248,11 +250,11 @@ void _3do_Save(void *buff)
 
 }
 
-bool _3do_Load(void *buff)
+int _3do_Load(void *buff)
 {
  unsigned char *data=(unsigned char*)buff;
  int *indexes=(int*)buff;
-        if((unsigned int)indexes[0]!=0x97970101)return false;
+        if((unsigned int)indexes[0]!=0x97970101)return 0;
 
         _arm_Load(&data[indexes[1]]);
         _vdl_Load(&data[indexes[2]]);
@@ -263,7 +265,7 @@ bool _3do_Load(void *buff)
         _madam_Load(&data[indexes[7]]);
         _xbus_Load(&data[indexes[8]]);
 
-        return true;
+        return 1;
 }
 
 
@@ -299,10 +301,10 @@ int line;
                 _3do_Destroy();
                 break;
          case FDP_DO_EXECFRAME:
-                _3do_Frame((VDLFrame*)datum);
+                _3do_Frame((VDLFrame*)datum, 0);
                 break;
          case FDP_DO_EXECFRAME_MT:
-                _3do_Frame((VDLFrame*)datum, true);
+                _3do_Frame((VDLFrame*)datum, 1);
                 break;
          case FDP_DO_FRAME_MT:
                 line=0;

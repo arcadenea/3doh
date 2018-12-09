@@ -26,68 +26,39 @@ Felix Lazarev
 
 #include "types.h"
 
-		extern uint8 *getpram();
+extern uint8 *getpram();
 
-class BitReaderBig
-{
-protected:
+typedef struct sBitReaderBig
+{	
 	uint32 buf;
 	uint32 point;
 	int32 bitpoint;
 	int32 bitset;
 	uint8* pram;
-public:
-	BitReaderBig()
-    {
-        buf=0;
-        bitset=1;
-        point=0;
-		bitpoint=0;
-		pram=getpram();
-    };
-	BitReaderBig(uint32 buff)
-	{
-		buf=buff;
-		point=0;
-		bitpoint=0;
-		bitset=1;
-		pram=getpram();
-	};
-    void AttachBuffer(uint32 buff)
-	{
-                buf=buff;
-		point=0;
-		bitpoint=0;
-    };
-	void SetBitRate(uint8 bits)
-	{
-		bitset=bits;
-                if(bitset>32)bitset=32;
-                if(!bitset)bitset=1;
-	};
-    
-	void SetPosition(uint32 bytepos, uint8 bitpos)
-	{
-		point=bytepos;
-		bitpoint=bitpos;
-	};
-	
-    void SetPos(uint32 bitpos){SetPosition(bitpos>>3,bitpos&7);};
+} BitReaderBig;
 
-	uint32 GetBytePose(){return point;};
-    
-	uint32 Read();
-    uint32 Read(uint8 bits);
+	
+void BitReaderBigInit(BitReaderBig *sbit);
+	
+void BitReaderBigInitBuff(BitReaderBig *sbit, uint32 buff);
 
-	void Skip(uint32 bits)
-	{
-		bits+=bitpoint;
-		point+=(bits>>3);
-		bitpoint=bits&7;
-	};
+void BitReaderBigAttachBuffer(BitReaderBig *sbit, uint32 buff);
+
+void BitReaderBigSetBitRate(BitReaderBig *sbit, uint8 bits);
+    
+void BitReaderBigSetPosition(BitReaderBig *sbit, uint32 bytepos, uint8 bitpos);
+	
+void BitReaderBigSetPos(BitReaderBig *sbit, uint32 bitpos);
+
+uint32 BitReaderBigGetBytePose(BitReaderBig *sbit);
+    
+uint32 BitReaderBigRead(BitReaderBig *sbit);
+uint32 BitReaderBigRead8(BitReaderBig *sbit, uint8 bits);
+
+void BitReaderBigSkip(BitReaderBig *sbit, uint32 bits);
 	
 	
-};
+
 
 
 

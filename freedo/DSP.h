@@ -45,9 +45,9 @@ Felix Lazarev
 	void _dsp_Reset();
 	
 
-        unsigned int _dsp_SaveSize();
-        void _dsp_Save(void *buff);
-        void _dsp_Load(void *buff);
+    unsigned int _dsp_SaveSize();
+    void _dsp_Save(void *buff);
+    void _dsp_Load(void *buff);
 
 
 #endif 

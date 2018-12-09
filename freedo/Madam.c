@@ -190,57 +190,75 @@ extern _ext_Interface  io_interface;
 
 #pragma pack(push,1)
 
-struct cp1btag{
+typedef struct scp1btag{
 	unsigned short	c:1;
 	unsigned short	pad:15;
-};
-struct cp2btag{
+}cp1btag;
+
+
+typedef struct scp2btag{
 	unsigned short	c:2;
 	unsigned short	pad:14;
-};
+}cp2btag;
+
+
 typedef struct cp4btag{
 	unsigned short	c:4;
 	unsigned short	pad:12;
-} cp4b;
-struct cp6btag{
+} cp4btag;
+
+
+typedef struct scp6btag{
 	unsigned short  c:5;
 	unsigned short  pw:1;
 	unsigned short	pad:10;
-};
-struct cp8btag{
+}cp6btag;
+
+
+typedef struct scp8btag{
 	unsigned short	c:5;
 	unsigned short	mpw:1;
 	unsigned short	m:2;
 	unsigned short	pad:8;
-};
-struct cp16btag{
+}cp8btag;
+
+
+typedef struct scp16btag{
 	unsigned short	c:5;
 	unsigned short	mb:3;
 	unsigned short	mg:3;
 	unsigned short	mr:3;
 	unsigned short	pad:1;
 	unsigned short	pw:1;
-};
-struct up8btag{
+}cp16btag;
+
+
+typedef struct sup8btag{
 	unsigned short	b:2;
 	unsigned short	g:3;
 	unsigned short	r:3;
 	unsigned short	pad:8;
-};
-struct up16btag{
+}up8btag;
+
+
+typedef struct sup16btag{
 	unsigned short	bw:1;
 	unsigned short	b:4;
 	unsigned short	g:5;
 	unsigned short	r:5;
 	unsigned short	p:1;
-};
-struct res16btag{
+}up16btag;
+
+
+typedef struct sres16btag{
 	unsigned short	b:5;
 	unsigned short	g:5;
 	unsigned short	r:5;
 	unsigned short	p:1;
-};
-union pdeco{
+}res16btag;
+
+
+typedef union pdeco{
 	unsigned int	raw;
 	cp1btag	c1b;
 	cp2btag	c2b;
@@ -251,21 +269,25 @@ union pdeco{
 	up8btag	u8b;
 	up16btag	u16b;
 	res16btag	r16b;
-};
+}pdeco;
 
-struct avtag
+typedef struct savtag
 {
 	unsigned char NEG:1;
 	unsigned char XTEND:1;
 	unsigned char nCLIP:1;
 	unsigned char dv3:2;
 	unsigned char pad:3;
-};
+}avtag;
+
+
 union AVS{
 	avtag avsignal;
 	unsigned int raw;
-};
-struct pixctag
+} avs;
+
+
+typedef struct spixctag
 {
 	unsigned char	dv2:1;
 	unsigned char	av:5;  // why int don't work???
@@ -274,13 +296,14 @@ struct pixctag
 	unsigned char	mxf:3;
 	unsigned char	ms:2;
 	unsigned char	s1:1;
-};
+}pixctag;
 
-union	PXC
+
+union PXC
 {
 	pixctag	meaning;
 	unsigned int raw;
-};
+}pxc;
 
 #pragma pack(pop)
 
@@ -296,6 +319,8 @@ typedef struct sMADAMDatum
  int WMOD;
  unsigned int _madam_FSM;
 } MADAMDatum;
+
+
 #pragma pack(pop)
 MADAMDatum madam;
 
@@ -1324,8 +1349,8 @@ unsigned int  PDEC(unsigned int pixel, unsigned short * amv)
 
 unsigned int  PPROC(unsigned int pixel, unsigned int fpix, unsigned int amv)
 {
-	AVS AV;
-	PXC pixc;
+	union AVS AV;
+	union PXC pixc;
 
 	pdeco	input1,out,pix1;
 
@@ -1537,10 +1562,10 @@ if(TEXEL_FUN_NUMBER==0)
 	for(currentrow=0;currentrow<(TEXTURE_HI_LIM);currentrow++)
 	{
 
-		//Initbitoper.Read(start,300);
-		bitoper.AttachBuffer(start);
-		offset=bitoper.Read(offsetl<<3);
-		//bitoper.Read(offsetl<<3);
+		//InitBitReaderBigRead8(&bitoper,start,300);
+		BitReaderBigAttachBuffer(&bitoper, start);
+		offset=BitReaderBigRead8(&bitoper, offsetl<<3);
+		//BitReaderBigRead8(&bitoper,offsetl<<3);
 
 		//BITCALC=((offset+2)<<2)<<5;
 		lastaddr=start+((offset+2)<<2);
@@ -1561,11 +1586,11 @@ if(TEXEL_FUN_NUMBER==0)
 		while(!eor)//while not end of row
 		{
 
-			type=bitoper.Read(2);//bitoper.Read(2);
-                        if( (unsigned int)(bitoper.GetBytePose()+start) >= (lastaddr))type=0;
+			type=BitReaderBigRead8(&bitoper, 2);
+                        if( (unsigned int)(BitReaderBigGetBytePose(&bitoper)+start) >= (lastaddr))type=0;
 
-			//pixcount=bitoper.Read(6)+1;
-			pixcount=bitoper.Read(6)+1;
+			//pixcount=BitReaderBigRead8(&bitoper,6)+1;
+			pixcount=BitReaderBigRead8(&bitoper, 6)+1;
 
 			if(scipw)
 			{
@@ -1575,8 +1600,8 @@ if(TEXEL_FUN_NUMBER==0)
 					scipw-=(pixcount);
 					if(HDX1616)xcur+=HDX1616*(pixcount);
 					if(HDY1616)ycur+=HDY1616*(pixcount);
-					if(type==1)bitoper.Skip(bpp*pixcount);//bitoper.Skip(bpp*(pixcount));
-					else if(type==3)bitoper.Skip(bpp);//bitoper.Skip(bpp);
+					if(type==1)BitReaderBigSkip(&bitoper, bpp*pixcount);//BitReaderBigSkip(&bitoper,bpp*(pixcount));
+					else if(type==3)BitReaderBigSkip(&bitoper,bpp);//BitReaderBigSkip(&bitoper,bpp);
 					continue;
 				}
 				else
@@ -1584,7 +1609,7 @@ if(TEXEL_FUN_NUMBER==0)
 					if(HDX1616)xcur+=HDX1616*(scipw);
 					if(HDY1616)ycur+=HDY1616*(scipw);
 					pixcount-=scipw;
-					if(type==1)bitoper.Skip(bpp*scipw);//bitoper.Skip(bpp*scipw);
+					if(type==1)BitReaderBigSkip(&bitoper,bpp*scipw);//BitReaderBigSkip(&bitoper,bpp*scipw);
 					scipw=0;
 				}
 			}
@@ -1603,8 +1628,8 @@ if(TEXEL_FUN_NUMBER==0)
 				case 1: //PACK_LITERAL
 					for(pix=0;pix<pixcount;pix++)
 					{
-						//CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
-						CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+						//CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
+						CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
 
 						if(!Transparent)
 						{
@@ -1629,8 +1654,8 @@ if(TEXEL_FUN_NUMBER==0)
 					break;
 				case 3: //PACK_REPEAT
 
-					//CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
-					CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+					//CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
+					CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
 
 					if(!Transparent)
 					{
@@ -1656,8 +1681,8 @@ else if(TEXEL_FUN_NUMBER==1)
 	for(currentrow=0;currentrow<SPRHI;currentrow++)
 	{
 
-		bitoper.AttachBuffer(start);
-		offset=bitoper.Read(offsetl<<3);
+		BitReaderBigAttachBuffer(&bitoper,start);
+		offset=BitReaderBigRead8(&bitoper,offsetl<<3);
 
 		BITCALC=((offset+2)<<2)<<5;
 		lastaddr=start+((offset+2)<<2);
@@ -1672,10 +1697,10 @@ else if(TEXEL_FUN_NUMBER==1)
 		while(!eor)//while not end of row
 		{
 
-			type=bitoper.Read(2);
-                        if( (bitoper.GetBytePose()+start) >= (lastaddr))type=0;
+			type=BitReaderBigRead8(&bitoper,2);
+                        if( (BitReaderBigGetBytePose(&bitoper)+start) >= (lastaddr))type=0;
 
-			int __pix=bitoper.Read(6)+1;
+			int __pix=BitReaderBigRead8(&bitoper,6)+1;
 			switch(type)
 			{
 				case 0: //end of row
@@ -1686,7 +1711,7 @@ else if(TEXEL_FUN_NUMBER==1)
 					while(__pix)
 					{
                                                 __pix--;
-						CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+						CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
 
 						if(!Transparent)
 						{
@@ -1709,7 +1734,7 @@ else if(TEXEL_FUN_NUMBER==1)
 
 					break;
 				case 3: //PACK_REPEAT
-					CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+					CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
 					if(!Transparent)
 					{
 
@@ -1737,8 +1762,8 @@ else
         for(currentrow=0;currentrow<SPRHI;currentrow++)
 	{
 
-		bitoper.AttachBuffer(start);
-		offset=bitoper.Read(offsetl<<3);
+		BitReaderBigAttachBuffer(&bitoper,start);
+		offset=BitReaderBigRead8(&bitoper,offsetl<<3);
 
 		BITCALC=((offset+2)<<2)<<5;
 		lastaddr=start+((offset+2)<<2);
@@ -1762,10 +1787,10 @@ else
 		while(!eor)//while not end of row
 		{
 
-			type=bitoper.Read(2);
-                        if( (bitoper.GetBytePose()+start) >= (lastaddr))type=0;
+			type=BitReaderBigRead8(&bitoper,2);
+                        if( (BitReaderBigGetBytePose(&bitoper)+start) >= (lastaddr))type=0;
 
-			int __pix=bitoper.Read(6)+1;
+			int __pix=BitReaderBigRead8(&bitoper,6)+1;
 
 			switch(type)
 			{
@@ -1776,7 +1801,7 @@ else
 
 					while(__pix)
 					{
-						CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+						CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
                                                 __pix--;
 						if(!Transparent)
 						{
@@ -1802,7 +1827,7 @@ else
 
 					break;
 				case 3: //PACK_REPEAT
-					CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+					CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
 					if(!Transparent)
 					{
 							while(__pix)
@@ -1876,12 +1901,12 @@ if(TEXEL_FUN_NUMBER==0)
 	for(i=TEXTURE_HI_START;i<TEXTURE_HI_LIM;i++)
 	{
 
-		bitoper.AttachBuffer(PDATA);
+		BitReaderBigAttachBuffer(&bitoper,PDATA);
 		BITCALC=((offset+2)<<2)<<5;
 		xcur=xvert+TEXTURE_WI_START*HDX1616;
 		ycur=yvert+TEXTURE_WI_START*HDY1616;
-                bitoper.Skip(bpp*(((PRE0>>24)&0xf)));
-		if(TEXTURE_WI_START)bitoper.Skip(bpp*(TEXTURE_WI_START));
+                BitReaderBigSkip(&bitoper,bpp*(((PRE0>>24)&0xf)));
+		if(TEXTURE_WI_START)BitReaderBigSkip(&bitoper,bpp*(TEXTURE_WI_START));
 
 		xvert+=VDX1616;
 		yvert+=VDY1616;
@@ -1889,7 +1914,7 @@ if(TEXEL_FUN_NUMBER==0)
 
 		for(j=TEXTURE_WI_START;j<SPRWI;j++)
 		{
-			CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+			CURPIX=PDEC(BitReaderBigRead8(&bitoper,bpp),&LAMV);
 
 			if(!Transparent)
 			{
@@ -1914,19 +1939,19 @@ else if(TEXEL_FUN_NUMBER==1)
 	for(i=0;i<SPRHI;i++)
 	{
 
-		bitoper.AttachBuffer(PDATA);
+		BitReaderBigAttachBuffer(&bitoper,PDATA);
 		BITCALC=((offset+2)<<2)<<5;
 		xcur=xvert;
 		ycur=yvert;
 		xvert+=VDX1616;
 		yvert+=VDY1616;
-                bitoper.Skip(bpp*(((PRE0>>24)&0xf)));
+                BitReaderBigSkip(&bitoper,bpp*(((PRE0>>24)&0xf)));
 
 
 		for(j=0;j<SPRWI;j++)
 		{
 
-			CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+			CURPIX=PDEC(BitReaderBigRead8(&bitoper, bpp),&LAMV);
 
 
 			if(!Transparent)
@@ -1950,7 +1975,7 @@ else
         SPRWI-=((PRE0>>24)&0xf);
 	for(i=0;i<SPRHI;i++)
 	{
-		bitoper.AttachBuffer(PDATA);
+		BitReaderBigAttachBuffer(&bitoper, PDATA);
 		BITCALC=((offset+2)<<2)<<5;
 
 		xcur=xvert;
@@ -1963,7 +1988,7 @@ else
 		HDX1616+=HDDX1616;
 		HDY1616+=HDDY1616;
 
-                bitoper.Skip(bpp*(((PRE0>>24)&0xf)));
+                BitReaderBigSkip(&bitoper,bpp*(((PRE0>>24)&0xf)));
 
 
 		xdown=xvert;
@@ -1972,7 +1997,7 @@ else
 		for(j=0;j<SPRWI;j++)
 		{
 
-                        CURPIX=PDEC(bitoper.Read(bpp),&LAMV);
+                        CURPIX=PDEC(BitReaderBigRead8(&bitoper, bpp),&LAMV);
 
 
 			if(!Transparent)

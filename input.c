@@ -20,18 +20,22 @@ inputMapping joystick0;
 int inputMapButton(char *button)
 {
 
+char buttonr = "";
+
+memcpy(&buttonr, button, sizeof(char);
+
 	printf("%s\n",button);
-	if(strcmp(button,"JOY_BUTTON0")==0) return 0;
-	if(strcmp(button,"JOY_BUTTON1")==0) return 1;
-	if(strcmp(button,"JOY_BUTTON2")==0) return 2;
-	if(strcmp(button,"JOY_BUTTON3")==0) return 3;
-	if(strcmp(button,"JOY_BUTTON4")==0) return 4;
-	if(strcmp(button,"JOY_BUTTON5")==0) return 5;
-	if(strcmp(button,"JOY_BUTTON6")==0) return 6;
-	if(strcmp(button,"JOY_BUTTON7")==0) return 7;
-	if(strcmp(button,"JOY_BUTTON8")==0) return 8;
-	if(strcmp(button,"JOY_BUTTON9")==0) return 9;
-	if(strcmp(button,"JOY_BUTTON10")==0) return 10;
+	if(strcmp(buttonr,"JOY_BUTTON0")==0) return 0;
+	if(strcmp(buttonr,"JOY_BUTTON1")==0) return 1;
+	if(strcmp(buttonr,"JOY_BUTTON2")==0) return 2;
+	if(strcmp(buttonr,"JOY_BUTTON3")==0) return 3;
+	if(strcmp(buttonr,"JOY_BUTTON4")==0) return 4;
+	if(strcmp(buttonr,"JOY_BUTTON5")==0) return 5;
+	if(strcmp(buttonr,"JOY_BUTTON6")==0) return 6;
+	if(strcmp(buttonr,"JOY_BUTTON7")==0) return 7;
+	if(strcmp(buttonr,"JOY_BUTTON8")==0) return 8;
+	if(strcmp(buttonr,"JOY_BUTTON9")==0) return 9;
+	if(strcmp(buttonr,"JOY_BUTTON10")==0) return 10;
 
 	return 0;
 			

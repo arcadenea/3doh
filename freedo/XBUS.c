@@ -34,7 +34,7 @@ Felix Lazarev
 //////////////////////////////////////////////////////////////////////
 #pragma pack(push,1)
 
-struct XBUSDatum
+typedef struct XBUSDatum
 {
 unsigned char XBSEL;
 unsigned char XBSELH;
@@ -44,7 +44,8 @@ unsigned char STDEVF[255];  //status of devices
 unsigned char STLENF; //pointer in fifo
 unsigned char CmdF[7];
 unsigned char CmdPtrF;
-};
+}XBUSDatum;
+
 #pragma pack(pop)
 
 #define XBSEL xbus.XBSEL

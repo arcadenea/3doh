@@ -58,14 +58,16 @@ int  OperandLoaderNWB(void);
 //////////////////////////////////////////////////////////////////////
 #pragma pack(push,1)
 
-	struct CIFTAG{
+	typedef struct CIFTAG{
 		 unsigned int	BCH_ADDR	:10;
 		 unsigned int	FLAG_MASK	:2;
 		 unsigned int	FLGSEL		:1;
 		 unsigned int	MODE		:2;
 		 unsigned int	PAD			:1;
-	};
-	struct BRNTAG{
+	}CIFTAG;
+
+
+	typedef struct BRNTAG{
 		unsigned int BCH_ADDR:10;
 		unsigned int FLAGM0	:1;
 		unsigned int FLAGM1	:1;
@@ -73,14 +75,17 @@ int  OperandLoaderNWB(void);
 		unsigned int MODE0	:1;
 		unsigned int MODE1  :1;
 		unsigned int AC		:1;
-	};
-	struct BRNBITS {
+	}BRNTAG;
+
+
+	typedef struct BRNBITS {
 		unsigned int BCH_ADDR:10;
 		unsigned int bits	:5;
 		unsigned int AC		:1;
-	};
+	}BRNBITS;
 
-	struct AIFTAG{
+
+	typedef struct AIFTAG{
 		unsigned int	BS			:4;
 		unsigned int	ALU			:4;
 		unsigned int	MUXB		:2;
@@ -88,20 +93,26 @@ int  OperandLoaderNWB(void);
 		  signed int	M2SEL		:1;
 		unsigned int	NUMOPS		:2;
 		  signed int	PAD			:1;
-	};
-	struct IOFTAG{
+	}AIFTAG;
+
+
+	typedef struct IOFTAG{
 		  signed int	IMMEDIATE	:13;
 		  signed int	JUSTIFY		:1;
 		unsigned int	TYPE		:2;
-	};
-	struct NROFTAG{
+	}IOFTAG;
+
+
+	typedef struct NROFTAG{
 		unsigned int	OP_ADDR		:10;
 		  signed int	DI			:1;
 		unsigned int	WB1			:1;
 		unsigned int	PAD			:1;
 		unsigned int	TYPE		:3;
-	};
-	struct R2OFTAG{
+	}NROFTAG;
+
+
+	typedef struct R2OFTAG{
 		unsigned int	R1			:4;
 		  signed int	R1_DI		:1;
 		unsigned int	R2			:4;
@@ -110,8 +121,10 @@ int  OperandLoaderNWB(void);
 		unsigned int	WB1			:1;
 		unsigned int	WB2			:1;
 		unsigned int	TYPE		:3;
-	};
-	struct R3OFTAG{
+	}R2OFTAG;
+
+
+	typedef struct R3OFTAG{
 		unsigned int	R1			:4;
 		  signed int	R1_DI		:1;
 		unsigned int	R2			:4;
@@ -119,7 +132,7 @@ int  OperandLoaderNWB(void);
 		unsigned int	R3			:4;
 		  signed int	R3_DI		:1;
 		unsigned int	TYPE		:1;
-	};
+	}R3OFTAG;
 
 	union ITAG{
 		unsigned int raw;
@@ -131,9 +144,9 @@ int  OperandLoaderNWB(void);
 		R3OFTAG	r3of;
 		BRNTAG	branch;
 		BRNBITS br;
-	};
+	}ITAG;
 
-	struct RQFTAG{
+	typedef struct RQFTAG{
 
 		unsigned int BS:1;
 		unsigned int ALU2:1;
@@ -141,20 +154,23 @@ int  OperandLoaderNWB(void);
 		unsigned int MULT2:1;
 		unsigned int MULT1:1;
 
-	};
+	}RQFTAG;
+
+
 	union _requnion
         {
 		unsigned char raw;
 		RQFTAG	rq;
-	};
+	}_requnion;
 
-	struct __INSTTRAS
+
+	typedef struct __INSTTRAS
 	{
-		_requnion req;
+		union _requnion req;
 		char BS;		// 4+1 bits
-	}; // only for ALU command
+	}__INSTTRAS; // only for ALU command
 
-	struct REGSTAG{
+	typedef struct REGSTAG{
 		unsigned int PC;//0x0ee
 		unsigned short NOISE;//0x0ea
 		unsigned short AudioOutStatus;//audlock,lftfull,rgtfull -- 0x0eb//0x3eb
@@ -164,8 +180,10 @@ int  OperandLoaderNWB(void);
 		short DSPPRLD;//0x3ef
 		short AUDCNT;
 		unsigned short INT;//0x3ee
-	};
-	struct INTAG{
+	}REGSTAG;
+
+
+	typedef struct INTAG{
 
 		signed short MULT1;
 		signed short MULT2;
@@ -180,27 +198,27 @@ int  OperandLoaderNWB(void);
 
 		unsigned short WRITEBACK;
 
-		_requnion	req;
+		union _requnion	req;
 
-		bool Running;
-		bool GenFIQ;
+		int Running;
+		int GenFIQ;
 
-	};
+	}INTAG;
 
-struct DSPDatum
+typedef struct DSPDatum
 {
         unsigned int RBASEx4;
         __INSTTRAS INSTTRAS[0x8000];
         unsigned short REGCONV[8][16];
-        bool BRCONDTAB[32][32];
+        int BRCONDTAB[32][32];
         unsigned short NMem[2048];
         unsigned short IMem[1024];
         int REGi;
         REGSTAG dregs;
         INTAG flags;
         unsigned int g_seed;
-        bool CPUSupply[16];
-};
+        int CPUSupply[16];
+}DSPDatum;
 
 #pragma pack(pop)
 
@@ -251,7 +269,7 @@ void _dsp_Init()
 {
 
   int a,c;
-  ITAG inst;
+  union ITAG inst;
   unsigned int i;
 
   g_seed=0xa5a5a5a5;
@@ -302,19 +320,19 @@ void _dsp_Init()
 
 	}
 	{
-		bool MD0, MD1, MD2, MD3;
-		bool STAT0, STAT1;
-		bool NSTAT0, NSTAT1;
-		bool TDCARE0, TDCARE1;
-		bool RDCARE;
-		bool MD12S;
-		bool SUPER0, SUPER1;
-		bool ALLZERO, NALLZERO;
-		bool SDS;
-		bool NVTest;
-		bool TMPCS;
-		bool CZTest, XactTest;
-		bool MD3S;
+		int MD0, MD1, MD2, MD3;
+		int STAT0, STAT1;
+		int NSTAT0, NSTAT1;
+		int TDCARE0, TDCARE1;
+		int RDCARE;
+		int MD12S;
+		int SUPER0, SUPER1;
+		int ALLZERO, NALLZERO;
+		int SDS;
+		int NVTest;
+		int TMPCS;
+		int CZTest, XactTest;
+		int MD3S;
 
 //		int Flags.Zero;
 //		int Flags.Nega;
@@ -372,13 +390,13 @@ void _dsp_Init()
 
 				MD3S=(NVTest || CZTest || XactTest)&&MD3;
 
-				BRCONDTAB[inst.br.bits][fExact+((Flags.raw*0x10080402)>>24)] = (MD12S || MD3S || SDS)? true : false;
+				BRCONDTAB[inst.br.bits][fExact+((Flags.raw*0x10080402)>>24)] = (MD12S || MD3S || SDS)? 1 : 0;
 			 }
 	}
 
 
 	flags.Running=0;
-	flags.GenFIQ=false;
+	flags.GenFIQ=0;
 	dregs.DSPPRLD=567;
 	dregs.AUDCNT=567;
 
@@ -402,28 +420,28 @@ void _dsp_Reset()
 extern _ext_Interface  io_interface;
 void _Arithmetic_Debug(uint16 nrc, uint16 opmask)
 {
- bool MULT1_RQST_L,MULT2_RQST_L,ALU1_RQST_L,ALU2_RQST_L,BS_RQST_L;
+ int MULT1_RQST_L,MULT2_RQST_L,ALU1_RQST_L,ALU2_RQST_L,BS_RQST_L;
  int NUMBER_OPERANDS=0, cnt=0;
 
     if( ((nrc&0x300)==0x300 || (nrc&0xC00)==0xC00) && !(opmask&0x10) )
-        {MULT1_RQST_L=true;cnt++;}
-    else MULT1_RQST_L=false;
+        {MULT1_RQST_L=1;cnt++;}
+    else MULT1_RQST_L=0;
 
     if( ((nrc&0x300)==0x300 || (nrc&0xC00)==0xC00) && !(opmask&0x8) && (nrc&0x1000) )
-        {MULT2_RQST_L=true;cnt++;}
-    else MULT2_RQST_L=false;
+        {MULT2_RQST_L=1;cnt++;}
+    else MULT2_RQST_L=0;
 
     if(  ((nrc&0x300)==0x100 || (nrc&0xC00)==0x400) && !(opmask&0x4)  )
-        {ALU1_RQST_L=true;cnt++;}
-    else ALU1_RQST_L=false;
+        {ALU1_RQST_L=1;cnt++;}
+    else ALU1_RQST_L=0;
 
     if(  ((nrc&0x300)==0x200 || (nrc&0xC00)==0x800) && !(opmask&0x2)  )
-        {ALU2_RQST_L=true;cnt++;}
-    else ALU2_RQST_L=false;
+        {ALU2_RQST_L=1;cnt++;}
+    else ALU2_RQST_L=0;
 
     if( (nrc&0xf)==0x8 && !(opmask&0x1) )
-        {BS_RQST_L=true;cnt++;}
-    else BS_RQST_L=false;
+        {BS_RQST_L=1;cnt++;}
+    else BS_RQST_L=0;
 
     NUMBER_OPERANDS=(nrc>>13)&3;
     if(!NUMBER_OPERANDS && (ALU1_RQST_L || ALU2_RQST_L) )NUMBER_OPERANDS=4;
@@ -435,10 +453,10 @@ void _Arithmetic_Debug(uint16 nrc, uint16 opmask)
 
 static union {
 	struct {
-		bool Zero;
-		bool Nega;
-		bool Carry;//not borrow
-		bool Over;
+		int Zero;
+		int Nega;
+		int Carry;//not borrow
+		int Over;
 	};
 	unsigned int raw;
 } Flags;
@@ -448,8 +466,8 @@ unsigned int _dsp_Loop()
 	unsigned int AOP, BOP=0;	//1st & 2nd operand
 	unsigned int Y=0;			//accumulator
 	unsigned int RBSR=0;	//return address
-	bool fExact=0;
-	bool Work=true;
+	int fExact=0;
+	int Work=1;
 
 	if(flags.Running)
 	{
@@ -464,8 +482,8 @@ unsigned int _dsp_Loop()
 
 //		RBSR=0;
 
-//		Work=true;
-		ITAG inst;
+//		Work=1;
+		union ITAG inst;
 		do
 		{
 //		  ITAG inst;
@@ -771,7 +789,7 @@ unsigned int _dsp_Loop()
 					case 6:// -not used2- ins
 							break;
 					case 7://SLEEP
-							Work=false;
+							Work=0;
 							break;
 					case 8:  case 9:  case 10: case 11:
 					case 12: case 13: case 14: case 15:
@@ -833,7 +851,7 @@ unsigned int _dsp_Loop()
 //		if(1&flags.GenFIQ)
 		if(flags.GenFIQ)
 		{
-			flags.GenFIQ=false;
+			flags.GenFIQ=0;
 			_clio_GenerateFiq(0x800,0);//AudioFIQ
 			//printf("#!!! AudioFIQ Generated 0x%4.4X\n!!!",val);
 		}
@@ -1024,7 +1042,7 @@ extern inline void  iwriteh(unsigned int addr, unsigned short val) //DSP IWRITE 
 				//printf("Sema4Status set to 0x%4.4X\n",dregs.Sema4Status);
 		break;
 	case 0x3ee: dregs.INT=val;
-				flags.GenFIQ=true;
+				flags.GenFIQ=1;
 		break;
 	case 0x3ef: dregs.DSPPRLD=val;
         //if(val>0)io_interface(EXT_DEBUG_PRINT,(void*)"DSP_CNT_REL > 0");
@@ -1067,13 +1085,11 @@ extern inline void  iwriteh(unsigned int addr, unsigned short val) //DSP IWRITE 
 }
 
 
-extern "C"
-{
 void  _dsp_SetRunning(int val)
 {
 	flags.Running= val;
 }
-};
+
 
 void  _dsp_WriteIMem(unsigned short addr, unsigned short val)//CPU writes to EI,I of DSP
 {
@@ -1190,7 +1206,7 @@ void OperandLoader(int Requests)
 	unsigned short OperandPool[6]; // c'mon -- 5 is real maximum
 	unsigned short GWRITEBACK;
 
-	ITAG operand;
+	union ITAG operand;
 
 	flags.WRITEBACK=0;
 
@@ -1345,7 +1361,7 @@ int  OperandLoaderNWB(void)
 {
 	int Operand;
 
-	ITAG operand;
+	union ITAG operand;
 
 		operand.raw=NMem[dregs.PC++];
 		if(operand.nrof.TYPE==4)
